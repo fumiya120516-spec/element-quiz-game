@@ -32,30 +32,39 @@ document.addEventListener("DOMContentLoaded", () => {
     { number: 82, symbol: "Pb", name: "鉛" }
   ];
 
+  const valueGetters = {
+    number: (element) => `${element.number}番`,
+    name: (element) => element.name,
+    symbol: (element) => element.symbol
+  };
+
+  const valueLabels = {
+    number: "元素番号",
+    name: "元素名",
+    symbol: "元素記号"
+  };
+
   const questionTypes = [
     {
       id: "from-number",
       label: "番号から答える",
-      promptLabel: "元素番号",
       question: (element) => `元素番号 ${element.number} の元素名と元素記号は？`,
-      promptValue: (element) => String(element.number),
-      answer: (element) => `${element.name}・${element.symbol}`
+      promptValue: (element) => `${element.number}番`,
+      answerKeys: ["name", "symbol"]
     },
     {
       id: "from-name",
       label: "元素名から答える",
-      promptLabel: "元素名",
       question: (element) => `「${element.name}」の元素番号と元素記号は？`,
       promptValue: (element) => element.name,
-      answer: (element) => `${element.number}番・${element.symbol}`
+      answerKeys: ["number", "symbol"]
     },
     {
       id: "from-symbol",
       label: "元素記号から答える",
-      promptLabel: "元素記号",
       question: (element) => `元素記号 ${element.symbol} の元素番号と元素名は？`,
       promptValue: (element) => element.symbol,
-      answer: (element) => `${element.number}番・${element.name}`
+      answerKeys: ["number", "name"]
     }
   ];
 
@@ -78,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionText = document.getElementById("questionText");
   const choices = document.getElementById("choices");
   const resultMessage = document.getElementById("resultMessage");
+  const answerButton = document.getElementById("answerButton");
   const nextButton = document.getElementById("nextButton");
   const quizBackButton = document.getElementById("quizBackButton");
   const reviewButton = document.getElementById("reviewButton");
@@ -240,19 +250,32 @@ document.addEventListener("DOMContentLoaded", () => {
     saveWeakList();
   }
 
-  function makeQuestion(element, type = randomItem(questionTypes)) {
-    const answer = type.answer(element);
-    const wrongAnswers = elements
+  function makeOptionSet(element, key) {
+    const correct = valueGetters[key](element);
+    const wrongOptions = elements
       .filter((candidate) => candidate.number !== element.number)
-      .map((candidate) => type.answer(candidate));
+      .map((candidate) => valueGetters[key](candidate));
+
+    return shuffle([correct, ...shuffle(wrongOptions).slice(0, 3)]);
+  }
+
+  function makeQuestion(element, type = randomItem(questionTypes)) {
+    const groups = type.answerKeys.map((key, index) => ({
+      key,
+      label: valueLabels[key],
+      step: `実験ステップ${index + 1}`,
+      correct: valueGetters[key](element),
+      options: makeOptionSet(element, key)
+    }));
 
     return {
       element,
       type,
       prompt: type.question(element),
       promptValue: type.promptValue(element),
-      answer,
-      choices: shuffle([answer, ...shuffle(wrongAnswers).slice(0, 3)])
+      groups,
+      selected: {},
+      userAnswers: {}
     };
   }
 
@@ -276,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showTopScreen() {
     showOnly("mode");
-    screenLead.textContent = "問題に出ていない2つの情報をセットで答えて、小テスト前に確認しよう。";
+    screenLead.textContent = "問題に出ていない2つの情報を別々に選んで、小テスト前に確認しよう。";
     progressBar.style.width = "0";
     scoreText.textContent = "0点";
     questionCount.textContent = "";
@@ -286,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showTypeScreen() {
     showOnly("type");
-    screenLead.textContent = "問題に出す情報を選んで、残り2つをセットで答える練習ができます。";
+    screenLead.textContent = "問題に出す情報を選んで、残り2つを別々に答える練習ができます。";
   }
 
   function startQuiz(config) {
@@ -312,52 +335,106 @@ document.addEventListener("DOMContentLoaded", () => {
   function showQuestion() {
     const question = activeQuiz.questions[activeQuiz.index];
     activeQuiz.answered = false;
+    question.selected = {};
+    question.userAnswers = {};
     questionType.textContent = activeQuiz.mode === "review" ? `苦手復習：${question.type.label}` : question.type.label;
     questionText.textContent = question.prompt;
     resultMessage.textContent = "";
     resultMessage.className = "result-message";
     choices.innerHTML = "";
+    answerButton.disabled = false;
     nextButton.disabled = true;
     nextButton.textContent = activeQuiz.index === activeQuiz.questions.length - 1 ? "結果を見る" : "次の問題へ";
 
-    question.choices.forEach((choice) => {
-      const button = document.createElement("button");
-      button.className = "choice-button";
-      button.type = "button";
-      button.textContent = choice;
-      button.addEventListener("click", () => answerQuestion(button, choice));
-      choices.appendChild(button);
+    const wrapper = document.createElement("div");
+    wrapper.className = "answer-groups";
+
+    question.groups.forEach((group) => {
+      const groupBox = document.createElement("section");
+      groupBox.className = "choice-group";
+      groupBox.innerHTML = `
+        <div class="choice-group-title">
+          <span>${group.step}</span>
+          <strong>${group.label}を選ぶ</strong>
+        </div>
+      `;
+
+      const optionGrid = document.createElement("div");
+      optionGrid.className = "group-options";
+
+      group.options.forEach((option) => {
+        const button = document.createElement("button");
+        button.className = "choice-button";
+        button.type = "button";
+        button.textContent = option;
+        button.addEventListener("click", () => selectOption(question, group.key, option, button, optionGrid));
+        optionGrid.appendChild(button);
+      });
+
+      groupBox.appendChild(optionGrid);
+      wrapper.appendChild(groupBox);
     });
 
+    choices.appendChild(wrapper);
     updateQuizStatus();
   }
 
-  function answerQuestion(selectedButton, selectedChoice) {
+  function selectOption(question, key, option, selectedButton, optionGrid) {
     if (activeQuiz.answered) {
       return;
     }
 
     playSound("click");
+    question.selected[key] = option;
+    [...optionGrid.children].forEach((button) => button.classList.remove("selected"));
+    selectedButton.classList.add("selected");
+    resultMessage.textContent = "";
+    resultMessage.className = "result-message";
+  }
+
+  function answerQuestion() {
+    if (activeQuiz.answered) {
+      return;
+    }
+
     const question = activeQuiz.questions[activeQuiz.index];
-    const correct = selectedChoice === question.answer;
+    const selectedCount = question.groups.filter((group) => question.selected[group.key]).length;
+
+    if (selectedCount === 0) {
+      resultMessage.textContent = "2つ選んでね。";
+      resultMessage.className = "result-message bad";
+      return;
+    }
+
+    if (selectedCount === 1) {
+      resultMessage.textContent = "もう1つ選んでね。";
+      resultMessage.className = "result-message bad";
+      return;
+    }
+
+    playSound("click");
     activeQuiz.answered = true;
-    question.userAnswer = selectedChoice;
+    answerButton.disabled = true;
+
+    question.groups.forEach((group) => {
+      question.userAnswers[group.key] = question.selected[group.key];
+    });
+
+    const correct = question.groups.every((group) => question.selected[group.key] === group.correct);
 
     if (correct) {
       playSound("correct");
       activeQuiz.score++;
-      selectedButton.classList.add("correct");
-      resultMessage.textContent = "実験成功！正解です。";
+      resultMessage.textContent = "実験成功！2つとも正解です。";
       resultMessage.classList.add("good");
       if (activeQuiz.removeWeakOnCorrect) {
         removeWeakElement(question.element);
       }
     } else {
       playSound("wrong");
-      selectedButton.classList.add("wrong");
       resultMessage.textContent = activeQuiz.mode === "exam"
         ? "記録しました。結果画面で確認できます。"
-        : `再実験！正解は「${question.answer}」です。`;
+        : `再実験！正解は ${formatCorrectAnswer(question)} です。`;
       resultMessage.classList.add("bad");
       activeQuiz.missed.push(question);
       if (activeQuiz.saveMistakes) {
@@ -365,16 +442,28 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    [...choices.children].forEach((button) => {
-      button.disabled = true;
-      if (button.textContent === question.answer) {
-        button.classList.add("correct");
-      }
-    });
-
+    markAnsweredChoices(question);
     activeQuiz.index++;
     nextButton.disabled = false;
     updateQuizStatus();
+  }
+
+  function markAnsweredChoices(question) {
+    choices.querySelectorAll(".choice-button").forEach((button) => {
+      button.disabled = true;
+      question.groups.forEach((group) => {
+        if (button.textContent === group.correct) {
+          button.classList.add("correct");
+        }
+        if (button.textContent === question.selected[group.key] && question.selected[group.key] !== group.correct) {
+          button.classList.add("wrong");
+        }
+      });
+    });
+  }
+
+  function formatCorrectAnswer(question) {
+    return question.groups.map((group) => `${group.label}：${group.correct}`).join("、");
   }
 
   function updateQuizStatus() {
@@ -416,14 +505,29 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const items = missed.map((question) => `
-      <li>
-        <span>${question.type.label}</span>
-        <strong>問題：${question.promptValue}</strong>
-        <em>正解：${question.answer}</em>
-        <em>あなたの答え：${question.userAnswer || "未回答"}</em>
-      </li>
-    `).join("");
+    const items = missed.map((question) => {
+      const correctRows = question.groups
+        .map((group) => `<em>${group.label}：${group.correct}</em>`)
+        .join("");
+      const userRows = question.groups
+        .map((group) => `<em>${group.label}：${question.userAnswers[group.key] || "未回答"}</em>`)
+        .join("");
+
+      return `
+        <li>
+          <span>${question.type.label}</span>
+          <strong>問題：${question.promptValue}</strong>
+          <div class="answer-report">
+            <b>正解</b>
+            ${correctRows}
+          </div>
+          <div class="answer-report user-answer-report">
+            <b>あなたの答え</b>
+            ${userRows}
+          </div>
+        </li>
+      `;
+    }).join("");
 
     missedListArea.innerHTML = `
       <div class="missed-list">
@@ -590,6 +694,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  answerButton.addEventListener("click", answerQuestion);
 
   nextButton.addEventListener("click", () => {
     playSound("click");
