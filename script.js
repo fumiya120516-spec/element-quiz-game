@@ -107,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const reviewAllButton = document.getElementById("reviewAllButton");
   const reviewSelectedButton = document.getElementById("reviewSelectedButton");
   const reviewListBackButton = document.getElementById("reviewListBackButton");
+  const weakResetButton = document.getElementById("weakResetButton");
   const cardSetupChoices = document.getElementById("cardSetupChoices");
   const cardStartButton = document.getElementById("cardStartButton");
   const cardSetupBackButton = document.getElementById("cardSetupBackButton");
@@ -163,17 +164,38 @@ document.addEventListener("DOMContentLoaded", () => {
     return audio;
   }
 
+  function getBgmVolume() {
+    return Math.min(1, Math.max(0, bgmVolumeValue / 100));
+  }
+
+  function getSfxVolume() {
+    return Math.min(1, Math.max(0, sfxVolumeValue / 100));
+  }
+
+  function applyBgmVolume() {
+    sounds.bgm.volume = getBgmVolume();
+  }
+
+  function applySfxVolume() {
+    ["click", "correct", "wrong", "result"].forEach((name) => {
+      sounds[name].volume = getSfxVolume();
+    });
+  }
+
   function playSound(name) {
     if (!sfxOn || !sounds[name] || sounds[name].dataset.failed === "true") {
       return;
     }
 
     try {
-      sounds[name].volume = sfxVolumeValue / 100;
-      sounds[name].currentTime = 0;
-      sounds[name].play().catch(() => {});
+      const sound = sounds[name].cloneNode(true);
+      sound.volume = getSfxVolume();
+      sound.currentTime = 0;
+      sound.play().catch((error) => {
+        console.warn(`効果音を再生できませんでした: ${name}`, error);
+      });
     } catch (error) {
-      // Missing audio files should never stop the game.
+      console.warn(`効果音を準備できませんでした: ${name}`, error);
     }
   }
 
@@ -183,10 +205,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      sounds.bgm.volume = bgmVolumeValue / 100;
-      sounds.bgm.play().catch(() => {});
+      applyBgmVolume();
+      sounds.bgm.play().catch((error) => {
+        console.warn("BGMを再生できませんでした", error);
+      });
     } catch (error) {
-      // iPhone may block audio until user interaction.
+      console.warn("BGMを準備できませんでした", error);
     }
   }
 
@@ -203,14 +227,28 @@ document.addEventListener("DOMContentLoaded", () => {
     sfxVolume.value = String(sfxVolumeValue);
     bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
     sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
-    sounds.bgm.volume = bgmVolumeValue / 100;
-    setSfxVolume();
+    applyBgmVolume();
+    applySfxVolume();
   }
 
   function setSfxVolume() {
-    ["click", "correct", "wrong", "result"].forEach((name) => {
-      sounds[name].volume = sfxVolumeValue / 100;
-    });
+    applySfxVolume();
+  }
+
+  function updateBgmVolume(value) {
+    bgmVolumeValue = Math.min(100, Math.max(0, Math.round(Number(value))));
+    localStorage.setItem(storageKeys.bgmVolume, String(bgmVolumeValue));
+    bgmVolume.value = String(bgmVolumeValue);
+    bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
+    applyBgmVolume();
+  }
+
+  function updateSfxVolume(value) {
+    sfxVolumeValue = Math.min(100, Math.max(0, Math.round(Number(value))));
+    localStorage.setItem(storageKeys.sfxVolume, String(sfxVolumeValue));
+    sfxVolume.value = String(sfxVolumeValue);
+    sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
+    applySfxVolume();
   }
 
   function getSavedVolume(key, defaultValue) {
@@ -370,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultMessage.className = "result-message";
     choices.innerHTML = "";
     answerButton.disabled = false;
-    quizBackButton.classList.toggle("hidden", activeQuiz.mode === "exam");
+    quizBackButton.classList.remove("hidden");
     nextButton.disabled = true;
     nextButton.textContent = activeQuiz.index === activeQuiz.questions.length - 1 ? "結果を見る" : "次の問題へ";
 
@@ -604,11 +642,15 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       reviewAllButton.disabled = true;
       reviewSelectedButton.disabled = false;
+      weakResetButton.disabled = true;
+      weakResetButton.classList.add("hidden");
       return;
     }
 
     reviewAllButton.disabled = false;
     reviewSelectedButton.disabled = false;
+    weakResetButton.disabled = false;
+    weakResetButton.classList.remove("hidden");
     const cards = weakElements.map((element) => `
       <button class="weak-card" type="button" data-number="${element.number}">
         <span>${element.number}番</span>
@@ -914,6 +956,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   quizBackButton.addEventListener("click", () => {
     playSound("click");
+    if (activeQuiz && activeQuiz.mode === "exam") {
+      const confirmed = window.confirm("小テスト本番を終了してトップに戻りますか？");
+      if (!confirmed) {
+        return;
+      }
+    }
     showTopScreen();
   });
 
@@ -953,6 +1001,20 @@ document.addEventListener("DOMContentLoaded", () => {
     playSound("click");
     showTopScreen();
   });
+  weakResetButton.addEventListener("click", () => {
+    playSound("click");
+    const confirmed = window.confirm("苦手リストをすべて削除しますか？この操作は元に戻せません。");
+    if (!confirmed) {
+      return;
+    }
+
+    weakList = [];
+    selectedWeakNumbers = [];
+    saveWeakList();
+    renderWeakList();
+    weakListMessage.textContent = "苦手リストをリセットしました。";
+    weakListMessage.className = "result-message good";
+  });
   typeBackButton.addEventListener("click", () => {
     playSound("click");
     showTopScreen();
@@ -989,19 +1051,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   bgmVolume.addEventListener("input", () => {
-    bgmVolumeValue = Number(bgmVolume.value);
-    localStorage.setItem(storageKeys.bgmVolume, String(bgmVolumeValue));
-    bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
-    sounds.bgm.volume = bgmVolumeValue / 100;
+    updateBgmVolume(bgmVolume.value);
+  });
+
+  bgmVolume.addEventListener("change", () => {
+    updateBgmVolume(bgmVolume.value);
   });
 
   sfxVolume.addEventListener("input", () => {
-    sfxVolumeValue = Number(sfxVolume.value);
-    localStorage.setItem(storageKeys.sfxVolume, String(sfxVolumeValue));
-    sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
-    setSfxVolume();
+    updateSfxVolume(sfxVolume.value);
   });
 
+  sfxVolume.addEventListener("change", () => {
+    updateSfxVolume(sfxVolume.value);
+  });
+
+  applyBgmVolume();
+  applySfxVolume();
   updateSoundControls();
   showTopScreen();
 });
