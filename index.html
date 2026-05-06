@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>元素記号4択クイズ</title>
+  <title>元素記号学習ゲーム</title>
   <link rel="icon" type="image/png" sizes="512x512" href="./icon.png">
-<link rel="apple-touch-icon" sizes="512x512" href="./icon.png">
-<link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" sizes="512x512" href="./icon.png">
+  <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -16,39 +16,73 @@
     <span class="molecule molecule-a"></span>
     <span class="molecule molecule-b"></span>
   </div>
+
   <main class="game">
     <section class="quiz-panel" aria-live="polite">
       <div class="top-row">
         <div class="title-area">
-          <p class="label">元素記号学習ゲーム</p>
+          <p class="label">ポップな理科実験室</p>
           <div class="title-line">
             <span class="lab-icon flask" aria-hidden="true"></span>
             <h1>元素マスター</h1>
             <span class="lab-icon atom-mark" aria-hidden="true"></span>
           </div>
+          <p id="screenLead" class="screen-lead">小テスト前に、元素番号・元素名・元素記号を楽しく確認しよう。</p>
         </div>
+
         <div id="scoreBox" class="score-box hidden">
           <span id="questionCount">1 / 10</span>
           <strong id="scoreText">0点</strong>
         </div>
       </div>
 
-      <div id="modeScreen" class="mode-screen">
-        <button id="quizModeButton" class="mode-button" type="button">
-          <span>クイズモード</span>
-          <small>4択で10問チャレンジ</small>
-        </button>
-        <button id="cardModeButton" class="mode-button" type="button">
-          <span>暗記カードモード</span>
-          <small>記号を見て番号と名前を確認</small>
-        </button>
-      </div>
+      <section id="modeScreen" class="mode-screen">
+        <div class="mode-grid">
+          <button class="mode-button" type="button" data-mode="random">
+            <span>ランダム10問</span>
+            <small>いろいろな出題タイプで練習</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="all">
+            <span>全30問チェック</span>
+            <small>範囲の元素を全部確認</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="review">
+            <span>苦手復習</span>
+            <small>間違えた問題だけを再実験</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="cards">
+            <span>暗記カード</span>
+            <small>表に出す項目を選んで暗記</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="type">
+            <span>出題タイプ選択</span>
+            <small>苦手な変換だけを10問練習</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="exam">
+            <span>小テスト本番</span>
+            <small>30問を本番形式で挑戦</small>
+          </button>
+        </div>
+
+        <div class="sound-panel" aria-label="音の設定">
+          <button id="bgmToggle" class="toggle-button" type="button">BGM OFF</button>
+          <button id="sfxToggle" class="toggle-button" type="button">効果音 ON</button>
+        </div>
+      </section>
+
+      <section id="typeScreen" class="setup-screen hidden">
+        <p class="setup-title">出題タイプを選んでください</p>
+        <div id="typeChoices" class="type-grid"></div>
+        <div class="actions">
+          <button id="typeBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
 
       <div id="progress" class="progress hidden" aria-label="進み具合">
         <div id="progressBar" class="progress-bar"></div>
       </div>
 
-      <div id="quizScreen" class="hidden">
+      <section id="quizScreen" class="hidden">
         <div id="questionArea" class="question-area">
           <p id="questionType" class="question-type"></p>
           <h2 id="questionText"></h2>
@@ -60,23 +94,47 @@
 
         <div class="actions">
           <button id="nextButton" class="main-button" type="button" disabled>次の問題へ</button>
-          <button id="reviewButton" class="review-button hidden" type="button">間違えた問題を復習する</button>
-          <button id="restartButton" class="sub-button" type="button">トップへ戻る</button>
+          <button id="quizBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
-      </div>
+      </section>
 
-      <div id="cardScreen" class="hidden">
+      <section id="resultScreen" class="hidden">
+        <div id="resultCard" class="question-area final-card">
+          <p id="resultTitle" class="question-type">研究結果レポート</p>
+          <h2 id="finalScoreText">0 / 10 点</h2>
+          <p id="finalComment" class="final-comment"></p>
+        </div>
+
+        <div id="missedListArea" class="missed-list-area"></div>
+
+        <div class="actions">
+          <button id="reviewButton" class="review-button hidden" type="button">苦手復習をする</button>
+          <button id="resultBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="cardScreen" class="hidden">
+        <div class="card-settings">
+          <label for="cardFrontSelect">カードの表</label>
+          <select id="cardFrontSelect">
+            <option value="symbol">元素記号</option>
+            <option value="name">元素名</option>
+            <option value="number">元素番号</option>
+          </select>
+        </div>
+
         <button id="flashCard" class="flash-card" type="button">
-          <span id="cardHint" class="card-hint">クリックして答えを見る</span>
-          <strong id="cardSymbol"></strong>
+          <span id="cardHint" class="card-hint">タップして答えを見る</span>
+          <strong id="cardFrontText"></strong>
           <span id="cardAnswer" class="card-answer"></span>
         </button>
 
         <div class="actions">
+          <button id="cardRevealButton" class="main-button" type="button">答えを見る</button>
           <button id="cardNextButton" class="main-button" type="button">次へ</button>
-          <button id="cardRestartButton" class="sub-button" type="button">トップへ戻る</button>
+          <button id="cardBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
-      </div>
+      </section>
     </section>
   </main>
 
