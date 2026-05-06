@@ -71,6 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const screens = {
     mode: document.getElementById("modeScreen"),
     type: document.getElementById("typeScreen"),
+    review: document.getElementById("reviewScreen"),
+    cardSetup: document.getElementById("cardSetupScreen"),
     quiz: document.getElementById("quizScreen"),
     result: document.getElementById("resultScreen"),
     card: document.getElementById("cardScreen")
@@ -91,13 +93,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextButton = document.getElementById("nextButton");
   const quizBackButton = document.getElementById("quizBackButton");
   const reviewButton = document.getElementById("reviewButton");
+  const reviewListButton = document.getElementById("reviewListButton");
   const resultBackButton = document.getElementById("resultBackButton");
   const resultTitle = document.getElementById("resultTitle");
   const finalScoreText = document.getElementById("finalScoreText");
   const finalComment = document.getElementById("finalComment");
   const missedListArea = document.getElementById("missedListArea");
   const typeChoices = document.getElementById("typeChoices");
+  const practiceStartButton = document.getElementById("practiceStartButton");
   const typeBackButton = document.getElementById("typeBackButton");
+  const weakListArea = document.getElementById("weakListArea");
+  const weakListMessage = document.getElementById("weakListMessage");
+  const reviewAllButton = document.getElementById("reviewAllButton");
+  const reviewSelectedButton = document.getElementById("reviewSelectedButton");
+  const reviewListBackButton = document.getElementById("reviewListBackButton");
+  const cardSetupChoices = document.getElementById("cardSetupChoices");
+  const cardStartButton = document.getElementById("cardStartButton");
+  const cardSetupBackButton = document.getElementById("cardSetupBackButton");
   const bgmToggle = document.getElementById("bgmToggle");
   const sfxToggle = document.getElementById("sfxToggle");
   const bgmVolume = document.getElementById("bgmVolume");
@@ -138,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let cardDeck = [];
   let cardIndex = 0;
   let cardRevealed = false;
+  let selectedWeakNumbers = [];
 
   function createAudio(src, volume, loop = false) {
     const audio = new Audio(src);
@@ -303,24 +316,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const inQuiz = screenName === "quiz";
-    scoreBox.classList.toggle("hidden", !inQuiz);
+    const showStatus = inQuiz || screenName === "card";
+    scoreBox.classList.toggle("hidden", !showStatus);
     progress.classList.toggle("hidden", !inQuiz && screenName !== "card");
   }
 
   function showTopScreen() {
     showOnly("mode");
-    screenLead.textContent = "すぐ練習、番号順チェック、本番練習から選んで小テスト対策を始めよう。";
+    screenLead.textContent = "練習、本番、復習、暗記を選んで、小テスト対策を始めよう。";
     progressBar.style.width = "0";
     scoreText.textContent = "0点";
     questionCount.textContent = "";
     missedListArea.innerHTML = "";
+    quizBackButton.classList.remove("hidden");
+    reviewListButton.classList.add("hidden");
     updateSoundControls();
   }
 
-  function showTypeScreen() {
+  function showPracticeScreen() {
     showOnly("type");
-    screenLead.textContent = "出題形式と問題数を選んで、苦手な形を集中練習できます。";
-    buildTypeButtons();
+    screenLead.textContent = "練習条件を選べます。初期設定のままなら、短時間のランダム10問です。";
+    buildPracticeSettings();
   }
 
   function startQuiz(config) {
@@ -354,6 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultMessage.className = "result-message";
     choices.innerHTML = "";
     answerButton.disabled = false;
+    quizBackButton.classList.toggle("hidden", activeQuiz.mode === "exam");
     nextButton.disabled = true;
     nextButton.textContent = activeQuiz.index === activeQuiz.questions.length - 1 ? "結果を見る" : "次の問題へ";
 
@@ -494,6 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
     finalComment.textContent = getScoreComment(activeQuiz.score, total, percent);
     renderMissedList(activeQuiz.missed, total, percent);
     reviewButton.classList.toggle("hidden", weakList.length === 0);
+    reviewListButton.classList.toggle("hidden", activeQuiz.mode !== "review");
     progressBar.style.width = "100%";
   }
 
@@ -551,37 +569,97 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startReviewMode() {
     playSound("click");
-    const weakElements = weakList.map(getElementByNumber).filter(Boolean);
-    const questions = weakElements.map((element) => makeQuestion(element, randomItem(questionTypes)));
-    if (questions.length === 0) {
-      showOnly("result");
-      resultTitle.textContent = "苦手復習";
-      finalScoreText.textContent = "苦手な問題はまだありません";
-      finalComment.textContent = "ランダム10問や全30問チェックで間違えた元素が、ここに保存されます。";
-      missedListArea.innerHTML = "";
-      reviewButton.classList.add("hidden");
-      return;
-    }
+    showReviewListScreen();
+  }
 
+  function startReviewQuiz(reviewElements) {
+    const questions = shuffle(reviewElements).map((element) => makeQuestion(element, randomItem(questionTypes)));
     startQuiz({
       mode: "review",
       title: "苦手復習",
-      questions: shuffle(questions),
+      questions,
       removeWeakOnCorrect: true,
       saveMistakes: true
     });
   }
 
-  function buildTypeButtons() {
+  function showReviewListScreen() {
+    showOnly("review");
+    screenLead.textContent = "苦手リストを確認して、まとめて復習するか、元素を選んで復習できます。";
+    selectedWeakNumbers = [];
+    weakListMessage.textContent = "";
+    weakListMessage.className = "result-message";
+    renderWeakList();
+  }
+
+  function renderWeakList() {
+    const weakElements = weakList.map(getElementByNumber).filter(Boolean).sort((a, b) => a.number - b.number);
+
+    if (weakElements.length === 0) {
+      weakListArea.innerHTML = `
+        <div class="weak-empty">
+          <strong>苦手な元素はまだありません</strong><br>
+          クイズで間違えるとここに追加されます。
+        </div>
+      `;
+      reviewAllButton.disabled = true;
+      reviewSelectedButton.disabled = false;
+      return;
+    }
+
+    reviewAllButton.disabled = false;
+    reviewSelectedButton.disabled = false;
+    const cards = weakElements.map((element) => `
+      <button class="weak-card" type="button" data-number="${element.number}">
+        <span>${element.number}番</span>
+        <strong>${element.name}</strong>
+        <em>${element.symbol}</em>
+      </button>
+    `).join("");
+
+    weakListArea.innerHTML = `<div class="weak-card-grid">${cards}</div>`;
+    weakListArea.querySelectorAll(".weak-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        playSound("click");
+        const number = Number(card.dataset.number);
+        if (selectedWeakNumbers.includes(number)) {
+          selectedWeakNumbers = selectedWeakNumbers.filter((selectedNumber) => selectedNumber !== number);
+          card.classList.remove("selected");
+        } else {
+          selectedWeakNumbers.push(number);
+          card.classList.add("selected");
+        }
+        weakListMessage.textContent = "";
+        weakListMessage.className = "result-message";
+      });
+    });
+  }
+
+  function buildPracticeSettings() {
     typeChoices.innerHTML = "";
-    let selectedType = null;
-    const options = [
-      ...questionTypes,
+    const practiceSettings = {
+      type: "random",
+      count: 10,
+      order: "random"
+    };
+
+    const typeOptions = [
       {
         id: "random",
         label: "完全ランダム",
         random: true
-      }
+      },
+      ...questionTypes
+    ];
+
+    const countOptions = [
+      { id: 10, label: "10問" },
+      { id: 30, label: "30問" }
+    ];
+
+    const orderOptions = [
+      { id: "random", label: "ランダム" },
+      { id: "ordered", label: "元素番号順" }
     ];
 
     const typeSection = document.createElement("section");
@@ -591,14 +669,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const typeGrid = document.createElement("div");
     typeGrid.className = "type-option-grid";
 
-    options.forEach((type) => {
+    typeOptions.forEach((type) => {
       const button = document.createElement("button");
       button.className = "type-button";
       button.type = "button";
       button.textContent = type.label;
+      button.classList.toggle("selected", type.id === practiceSettings.type);
       button.addEventListener("click", () => {
-        selectedType = type;
-        screenLead.textContent = "出題形式を選びました。次に10問か30問を選んでください。";
+        practiceSettings.type = type.id;
+        screenLead.textContent = "出題タイプを選びました。問題数と出題順も確認してスタートできます。";
         typeGrid.querySelectorAll(".type-button").forEach((typeButton) => typeButton.classList.remove("selected"));
         button.classList.add("selected");
       });
@@ -609,43 +688,125 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const countSection = document.createElement("section");
     countSection.className = "type-section";
-    countSection.innerHTML = "<h3>2. 問題数を選んでスタート</h3>";
+    countSection.innerHTML = "<h3>2. 問題数を選ぶ</h3>";
 
     const countGrid = document.createElement("div");
     countGrid.className = "count-option-grid";
 
-    [10, 30].forEach((count) => {
+    countOptions.forEach((countOption) => {
       const button = document.createElement("button");
       button.className = "type-button";
       button.type = "button";
-      button.textContent = `${count}問`;
+      button.textContent = countOption.label;
+      button.classList.toggle("selected", countOption.id === practiceSettings.count);
       button.addEventListener("click", () => {
-        if (!selectedType) {
-          screenLead.textContent = "先に出題タイプを選んでください。";
-          return;
-        }
-
-        const questions = selectedType.random
-          ? makeElementSetQuestions({ count })
-          : makeElementSetQuestions({ count, typeSource: [selectedType] });
-        startQuiz({
-          mode: "type",
-          title: `${selectedType.label} ${count}問`,
-          questions
-        });
+        practiceSettings.count = countOption.id;
+        screenLead.textContent = "問題数を選びました。スタートで練習を始められます。";
+        countGrid.querySelectorAll(".type-button").forEach((countButton) => countButton.classList.remove("selected"));
+        button.classList.add("selected");
       });
       countGrid.appendChild(button);
     });
 
     countSection.appendChild(countGrid);
+
+    const orderSection = document.createElement("section");
+    orderSection.className = "type-section";
+    orderSection.innerHTML = "<h3>3. 出題順を選ぶ</h3>";
+
+    const orderGrid = document.createElement("div");
+    orderGrid.className = "order-option-grid";
+
+    orderOptions.forEach((orderOption) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = orderOption.label;
+      button.classList.toggle("selected", orderOption.id === practiceSettings.order);
+      button.addEventListener("click", () => {
+        practiceSettings.order = orderOption.id;
+        screenLead.textContent = "出題順を選びました。スタートで練習を始められます。";
+        orderGrid.querySelectorAll(".type-button").forEach((orderButton) => orderButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      orderGrid.appendChild(button);
+    });
+
+    orderSection.appendChild(orderGrid);
     typeChoices.appendChild(typeSection);
     typeChoices.appendChild(countSection);
+    typeChoices.appendChild(orderSection);
+
+    practiceStartButton.onclick = () => {
+      const selectedType = typeOptions.find((type) => type.id === practiceSettings.type);
+      const typeSource = selectedType.random ? questionTypes : [selectedType];
+      const questions = makeElementSetQuestions({
+        count: practiceSettings.count,
+        ordered: practiceSettings.order === "ordered",
+        typeSource
+      });
+      startQuiz({
+        mode: "practice",
+        title: "練習モード",
+        questions
+      });
+    };
   }
 
   function startCardMode() {
     playSound("click");
     startBgm();
-    cardDeck = shuffle(elements);
+    showCardSetupScreen();
+  }
+
+  function showCardSetupScreen() {
+    showOnly("cardSetup");
+    screenLead.textContent = "暗記カードは30枚固定です。表示する順番を選んで始めましょう。";
+    buildCardSetup();
+  }
+
+  function buildCardSetup() {
+    cardSetupChoices.innerHTML = "";
+    let selectedOrder = "random";
+
+    const section = document.createElement("section");
+    section.className = "type-section";
+    section.innerHTML = "<h3>カードの順番を選ぶ</h3>";
+
+    const grid = document.createElement("div");
+    grid.className = "card-order-grid";
+
+    [
+      { id: "random", label: "ランダム順" },
+      { id: "ordered", label: "元素番号順" }
+    ].forEach((option) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = option.label;
+      button.classList.toggle("selected", option.id === selectedOrder);
+      button.addEventListener("click", () => {
+        playSound("click");
+        selectedOrder = option.id;
+        grid.querySelectorAll(".type-button").forEach((orderButton) => orderButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      grid.appendChild(button);
+    });
+
+    section.appendChild(grid);
+    cardSetupChoices.appendChild(section);
+
+    cardStartButton.onclick = () => {
+      startCardDeck(selectedOrder);
+    };
+  }
+
+  function startCardDeck(order) {
+    playSound("click");
+    cardDeck = order === "ordered"
+      ? [...elements].sort((a, b) => a.number - b.number)
+      : shuffle(elements);
     cardIndex = 0;
     showOnly("card");
     screenLead.textContent = "カードをタップして、表に出ていない2つの情報を確認できます。";
@@ -718,22 +879,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-mode]").forEach((button) => {
     button.addEventListener("click", () => {
       const mode = button.dataset.mode;
-      if (mode === "random") {
-        startQuiz({ mode: "random", title: "ランダム10問", questions: makeRandomQuestions(10) });
-      }
-      if (mode === "all") {
-        startQuiz({ mode: "all", title: "全30問チェック", questions: makeElementSetQuestions({ count: elements.length, ordered: true }) });
+      if (mode === "practice") {
+        playSound("click");
+        startBgm();
+        showPracticeScreen();
       }
       if (mode === "review") {
         startReviewMode();
       }
       if (mode === "cards") {
         startCardMode();
-      }
-      if (mode === "type") {
-        playSound("click");
-        startBgm();
-        showTypeScreen();
       }
       if (mode === "exam") {
         startQuiz({
@@ -767,12 +922,52 @@ document.addEventListener("DOMContentLoaded", () => {
     showTopScreen();
   });
 
+  reviewAllButton.addEventListener("click", () => {
+    playSound("click");
+    const weakElements = weakList.map(getElementByNumber).filter(Boolean);
+    if (weakElements.length === 0) {
+      weakListMessage.textContent = "苦手な元素はまだありません。";
+      weakListMessage.className = "result-message bad";
+      return;
+    }
+    startReviewQuiz(weakElements);
+  });
+
+  reviewSelectedButton.addEventListener("click", () => {
+    playSound("click");
+    const reviewElements = selectedWeakNumbers.map(getElementByNumber).filter(Boolean);
+    if (reviewElements.length === 0) {
+      weakListMessage.textContent = "復習する元素を選んでください。";
+      weakListMessage.className = "result-message bad";
+      return;
+    }
+    startReviewQuiz(reviewElements);
+  });
+
   reviewButton.addEventListener("click", startReviewMode);
-  typeBackButton.addEventListener("click", showTopScreen);
+  reviewListButton.addEventListener("click", () => {
+    playSound("click");
+    showReviewListScreen();
+  });
+  reviewListBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
+  typeBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
   flashCard.addEventListener("click", revealCard);
   cardRevealButton.addEventListener("click", revealCard);
   cardNextButton.addEventListener("click", nextCard);
-  cardBackButton.addEventListener("click", showTopScreen);
+  cardBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
+  cardSetupBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
   cardFrontSelect.addEventListener("change", showCard);
 
   bgmToggle.addEventListener("click", () => {
