@@ -40,7 +40,7 @@
         <div class="mode-grid">
           <button class="mode-button" type="button" data-mode="random">
             <span>ランダム10問</span>
-            <small>いろいろな出題タイプで練習</small>
+            <small>2つの答えを別々に選んで練習</small>
           </button>
           <button class="mode-button" type="button" data-mode="all">
             <span>全30問チェック</span>
@@ -56,7 +56,7 @@
           </button>
           <button class="mode-button" type="button" data-mode="type">
             <span>出題タイプ選択</span>
-            <small>苦手な変換だけを10問練習</small>
+            <small>番号・名前・記号の出し方を選ぶ</small>
           </button>
           <button class="mode-button" type="button" data-mode="exam">
             <span>小テスト本番</span>
@@ -101,6 +101,7 @@
         <p id="resultMessage" class="result-message"></p>
 
         <div class="actions">
+          <button id="answerButton" class="main-button answer-button" type="button">答える</button>
           <button id="nextButton" class="main-button" type="button" disabled>次の問題へ</button>
           <button id="quizBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
