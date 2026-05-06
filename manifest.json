@@ -1,0 +1,15 @@
+{
+  "name": "元素記号4択クイズ",
+  "short_name": "元素クイズ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#24c4f4",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
