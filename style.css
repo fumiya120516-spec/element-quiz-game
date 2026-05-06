@@ -551,10 +551,10 @@ h1 {
 }
 
 .choice-button.selected {
-  border-color: #ffb233;
-  background: #fff7df;
-  color: #8a4a00;
-  box-shadow: 0 4px 0 #ffcb6b, 0 0 0 4px rgba(255, 190, 61, 0.3), 0 14px 20px rgba(255, 178, 51, 0.18);
+  border-color: #20b486;
+  background: linear-gradient(#e9fff9, #d9f8ec);
+  color: #075a43;
+  box-shadow: 0 4px 0 #87d7bd, 0 0 0 4px rgba(32, 180, 134, 0.28), 0 14px 22px rgba(32, 180, 134, 0.22);
   transform: translateY(-3px);
 }
 
@@ -609,6 +609,14 @@ h1 {
   flex-wrap: wrap;
 }
 
+.danger-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 2px dashed rgba(228, 88, 53, 0.28);
+}
+
 .main-button {
   background: #168878;
   color: #ffffff;
@@ -626,6 +634,40 @@ h1 {
 .sub-button {
   background: #ffe0b8;
   color: #73431d;
+}
+
+.danger-button {
+  min-width: 210px;
+  min-height: 52px;
+  padding: 13px 20px;
+  border: 2px solid #e45835;
+  border-radius: 8px;
+  background: #fff0ea;
+  color: #a72b16;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  line-height: 1.35;
+  box-shadow: 0 5px 0 rgba(228, 88, 53, 0.24), 0 10px 16px rgba(43, 90, 126, 0.1);
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.danger-button:hover,
+.danger-button:focus-visible {
+  background: #ffe0d6;
+  box-shadow: 0 3px 0 rgba(228, 88, 53, 0.32), 0 10px 16px rgba(228, 88, 53, 0.14);
+  transform: translateY(2px);
+  outline: none;
+}
+
+.danger-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
 }
 
 .setup-screen {
@@ -1129,7 +1171,8 @@ h1 {
   .toggle-button,
   .main-button,
   .review-button,
-  .sub-button {
+  .sub-button,
+  .danger-button {
     width: 100%;
     min-height: 54px;
     padding: 13px 16px;
