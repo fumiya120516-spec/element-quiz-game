@@ -39,6 +39,20 @@ body::before {
   opacity: 0.85;
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 2px, transparent 3px),
+    radial-gradient(circle, rgba(255, 190, 61, 0.45) 0 2px, transparent 4px),
+    radial-gradient(circle, rgba(32, 180, 134, 0.35) 0 2px, transparent 4px);
+  background-size: 84px 84px, 130px 130px, 170px 170px;
+  background-position: 20px 16px, 74px 80px, 130px 20px;
+  opacity: 0.75;
+}
+
 .science-background {
   position: fixed;
   inset: 0;
@@ -139,7 +153,7 @@ body::before {
   background: rgba(255, 255, 255, 0.96);
   border: 3px solid #bdeee2;
   border-radius: 8px;
-  box-shadow: 0 20px 48px rgba(43, 90, 126, 0.2);
+  box-shadow: 0 20px 48px rgba(43, 90, 126, 0.2), 0 0 0 8px rgba(255, 255, 255, 0.32);
   padding: clamp(22px, 4vw, 40px);
   position: relative;
   overflow: hidden;
@@ -302,7 +316,9 @@ h1 {
   padding: 22px;
   border: 3px solid #9eddec;
   border-radius: 8px;
-  background: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(255, 190, 61, 0.18), transparent 38%),
+    linear-gradient(#ffffff, #f2fbff);
   color: #16314f;
   font: inherit;
   cursor: pointer;
@@ -424,6 +440,7 @@ h1 {
   padding: 34px 26px 26px;
   border-radius: 8px;
   background:
+    radial-gradient(circle at 96% 20%, rgba(32, 180, 134, 0.16), transparent 4rem),
     linear-gradient(#dff5ff 0 20px, transparent 20px),
     repeating-linear-gradient(#ffffff 0 34px, #f3fbff 35px 36px);
   border: 3px solid #83c9de;
@@ -451,14 +468,59 @@ h1 {
 }
 
 .choices {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  display: block;
   margin: 24px 0;
 }
 
+.answer-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.choice-group {
+  padding: 16px;
+  border: 3px solid #a9e2ef;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 190, 61, 0.16), transparent 34%),
+    rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 0 #c5e8f0, 0 14px 20px rgba(43, 90, 126, 0.1);
+}
+
+.choice-group-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.choice-group-title span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #168878;
+  color: #ffffff;
+  font-size: 0.86rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.choice-group-title strong {
+  color: #143b67;
+  font-size: 1.08rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.group-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .choice-button {
-  min-height: 86px;
+  min-height: 72px;
   padding: 12px;
   border: 3px solid #b9dfea;
   border-radius: 8px;
@@ -473,6 +535,14 @@ h1 {
   transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+.choice-button.selected {
+  border-color: #ffb233;
+  background: #fff7df;
+  color: #8a4a00;
+  box-shadow: 0 4px 0 #ffcb6b, 0 0 0 4px rgba(255, 190, 61, 0.3), 0 14px 20px rgba(255, 178, 51, 0.18);
+  transform: translateY(-3px);
 }
 
 .choice-button:hover:not(:disabled),
@@ -647,6 +717,35 @@ h1 {
   color: #c72e2e;
   font-style: normal;
   font-weight: 800;
+}
+
+.answer-report {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #eefbf8;
+}
+
+.answer-report.user-answer-report {
+  background: #fff0ea;
+}
+
+.answer-report b,
+.answer-report em {
+  display: block;
+}
+
+.answer-report b {
+  color: #143b67;
+  margin-bottom: 4px;
+}
+
+.answer-report em {
+  color: #c72e2e;
+}
+
+.answer-button {
+  background: #e45835;
 }
 
 .card-settings {
@@ -869,13 +968,37 @@ h1 {
   }
 
   .choices {
-    grid-template-columns: 1fr;
-    gap: 12px;
     margin: 16px 0;
   }
 
+  .answer-groups {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .choice-group {
+    padding: 13px;
+    box-shadow: 0 5px 0 #c5e8f0, 0 10px 14px rgba(43, 90, 126, 0.08);
+  }
+
+  .choice-group-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .choice-group-title strong {
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .group-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
   .choice-button {
-    min-height: 66px;
+    min-height: 58px;
     padding: 11px;
     font-size: 1.16rem;
     box-shadow: 0 5px 0 #c8e7f0, 0 10px 14px rgba(43, 90, 126, 0.1);
@@ -987,8 +1110,8 @@ h1 {
   }
 
   .choice-button {
-    min-height: 60px;
-    font-size: 1.05rem;
+    min-height: 54px;
+    font-size: 0.98rem;
   }
 
   .flash-card {
