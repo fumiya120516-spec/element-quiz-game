@@ -113,10 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const cardSetupBackButton = document.getElementById("cardSetupBackButton");
   const bgmToggle = document.getElementById("bgmToggle");
   const sfxToggle = document.getElementById("sfxToggle");
-  const bgmVolume = document.getElementById("bgmVolume");
-  const bgmVolumeLabel = document.getElementById("bgmVolumeLabel");
-  const sfxVolume = document.getElementById("sfxVolume");
-  const sfxVolumeLabel = document.getElementById("sfxVolumeLabel");
   const cardFrontSelect = document.getElementById("cardFrontSelect");
   const flashCard = document.getElementById("flashCard");
   const cardHint = document.getElementById("cardHint");
@@ -129,23 +125,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const storageKeys = {
     weak: "elementQuizWeakElements",
     bgm: "elementQuizBgmOn",
-    sfx: "elementQuizSfxOn",
-    bgmVolume: "elementQuizBgmVolume",
-    sfxVolume: "elementQuizSfxVolume"
+    sfx: "elementQuizSfxOn"
   };
 
+  const BGM_VOLUME = 0.15;
+  const SFX_VOLUME = 0.45;
+
   const sounds = {
-    click: createAudio("./assets/sounds/click.mp3", 0.5),
-    correct: createAudio("./assets/sounds/correct.mp3", 0.5),
-    wrong: createAudio("./assets/sounds/wrong.mp3", 0.5),
-    result: createAudio("./assets/sounds/result.mp3", 0.5),
-    bgm: createAudio("./assets/sounds/bgm.mp3", 0.3, true)
+    click: createAudio("./assets/sounds/click.mp3", SFX_VOLUME),
+    correct: createAudio("./assets/sounds/correct.mp3", SFX_VOLUME),
+    wrong: createAudio("./assets/sounds/wrong.mp3", SFX_VOLUME),
+    result: createAudio("./assets/sounds/result.mp3", SFX_VOLUME),
+    bgm: createAudio("./assets/sounds/bgm.mp3", BGM_VOLUME, true)
   };
 
   let bgmOn = localStorage.getItem(storageKeys.bgm) === "true";
   let sfxOn = localStorage.getItem(storageKeys.sfx) !== "false";
-  let bgmVolumeValue = getSavedVolume(storageKeys.bgmVolume, 30);
-  let sfxVolumeValue = getSavedVolume(storageKeys.sfxVolume, 50);
   let weakList = loadWeakList();
   let activeQuiz = null;
   let cardDeck = [];
@@ -164,22 +159,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return audio;
   }
 
-  function getBgmVolume() {
-    return Math.min(1, Math.max(0, bgmVolumeValue / 100));
-  }
-
-  function getSfxVolume() {
-    return Math.min(1, Math.max(0, sfxVolumeValue / 100));
+  function applyFixedVolumes() {
+    sounds.bgm.volume = BGM_VOLUME;
+    ["click", "correct", "wrong", "result"].forEach((name) => {
+      sounds[name].volume = SFX_VOLUME;
+    });
   }
 
   function applyBgmVolume() {
-    sounds.bgm.volume = getBgmVolume();
-  }
-
-  function applySfxVolume() {
-    ["click", "correct", "wrong", "result"].forEach((name) => {
-      sounds[name].volume = getSfxVolume();
-    });
+    sounds.bgm.volume = BGM_VOLUME;
   }
 
   function playSound(name) {
@@ -189,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const sound = sounds[name].cloneNode(true);
-      sound.volume = getSfxVolume();
+      sound.volume = SFX_VOLUME;
       sound.currentTime = 0;
       sound.play().catch((error) => {
         console.warn(`効果音を再生できませんでした: ${name}`, error);
@@ -223,40 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bgmToggle.classList.toggle("active", bgmOn);
     sfxToggle.textContent = sfxOn ? "効果音 ON" : "効果音 OFF";
     sfxToggle.classList.toggle("active", sfxOn);
-    bgmVolume.value = String(bgmVolumeValue);
-    sfxVolume.value = String(sfxVolumeValue);
-    bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
-    sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
-    applyBgmVolume();
-    applySfxVolume();
-  }
-
-  function setSfxVolume() {
-    applySfxVolume();
-  }
-
-  function updateBgmVolume(value) {
-    bgmVolumeValue = Math.min(100, Math.max(0, Math.round(Number(value))));
-    localStorage.setItem(storageKeys.bgmVolume, String(bgmVolumeValue));
-    bgmVolume.value = String(bgmVolumeValue);
-    bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
-    applyBgmVolume();
-  }
-
-  function updateSfxVolume(value) {
-    sfxVolumeValue = Math.min(100, Math.max(0, Math.round(Number(value))));
-    localStorage.setItem(storageKeys.sfxVolume, String(sfxVolumeValue));
-    sfxVolume.value = String(sfxVolumeValue);
-    sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
-    applySfxVolume();
-  }
-
-  function getSavedVolume(key, defaultValue) {
-    const saved = Number(localStorage.getItem(key));
-    if (Number.isFinite(saved)) {
-      return Math.min(100, Math.max(0, Math.round(saved)));
-    }
-    return defaultValue;
+    applyFixedVolumes();
   }
 
   function randomItem(list) {
@@ -1050,24 +1005,7 @@ document.addEventListener("DOMContentLoaded", () => {
     playSound("click");
   });
 
-  bgmVolume.addEventListener("input", () => {
-    updateBgmVolume(bgmVolume.value);
-  });
-
-  bgmVolume.addEventListener("change", () => {
-    updateBgmVolume(bgmVolume.value);
-  });
-
-  sfxVolume.addEventListener("input", () => {
-    updateSfxVolume(sfxVolume.value);
-  });
-
-  sfxVolume.addEventListener("change", () => {
-    updateSfxVolume(sfxVolume.value);
-  });
-
-  applyBgmVolume();
-  applySfxVolume();
+  applyFixedVolumes();
   updateSoundControls();
   showTopScreen();
 });
