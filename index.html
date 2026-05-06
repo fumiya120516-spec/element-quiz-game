@@ -1,8 +1,82 @@
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>元素記号4択クイズ</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css">
 </head>
+<body>
+  <div class="science-background" aria-hidden="true">
+    <span class="atom atom-a"></span>
+    <span class="atom atom-b"></span>
+    <span class="molecule molecule-a"></span>
+    <span class="molecule molecule-b"></span>
+  </div>
+  <main class="game">
+    <section class="quiz-panel" aria-live="polite">
+      <div class="top-row">
+        <div class="title-area">
+          <p class="label">元素記号学習ゲーム</p>
+          <div class="title-line">
+            <span class="lab-icon flask" aria-hidden="true"></span>
+            <h1>元素マスター</h1>
+            <span class="lab-icon atom-mark" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div id="scoreBox" class="score-box hidden">
+          <span id="questionCount">1 / 10</span>
+          <strong id="scoreText">0点</strong>
+        </div>
+      </div>
+
+      <div id="modeScreen" class="mode-screen">
+        <button id="quizModeButton" class="mode-button" type="button">
+          <span>クイズモード</span>
+          <small>4択で10問チャレンジ</small>
+        </button>
+        <button id="cardModeButton" class="mode-button" type="button">
+          <span>暗記カードモード</span>
+          <small>記号を見て番号と名前を確認</small>
+        </button>
+      </div>
+
+      <div id="progress" class="progress hidden" aria-label="進み具合">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <div id="quizScreen" class="hidden">
+        <div id="questionArea" class="question-area">
+          <p id="questionType" class="question-type"></p>
+          <h2 id="questionText"></h2>
+        </div>
+
+        <div id="choices" class="choices"></div>
+
+        <p id="resultMessage" class="result-message"></p>
+
+        <div class="actions">
+          <button id="nextButton" class="main-button" type="button" disabled>次の問題へ</button>
+          <button id="reviewButton" class="review-button hidden" type="button">間違えた問題を復習する</button>
+          <button id="restartButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </div>
+
+      <div id="cardScreen" class="hidden">
+        <button id="flashCard" class="flash-card" type="button">
+          <span id="cardHint" class="card-hint">クリックして答えを見る</span>
+          <strong id="cardSymbol"></strong>
+          <span id="cardAnswer" class="card-answer"></span>
+        </button>
+
+        <div class="actions">
+          <button id="cardNextButton" class="main-button" type="button">次へ</button>
+          <button id="cardRestartButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
