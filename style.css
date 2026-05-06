@@ -1,0 +1,9 @@
+
+button {
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+.main-button,
