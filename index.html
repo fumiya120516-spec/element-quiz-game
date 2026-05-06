@@ -38,29 +38,21 @@
 
       <section id="modeScreen" class="mode-screen">
         <div class="mode-grid">
-          <button class="mode-button" type="button" data-mode="random">
-            <span>ランダム10問</span>
-            <small>短時間でランダム練習</small>
-          </button>
-          <button class="mode-button" type="button" data-mode="all">
-            <span>全30問チェック</span>
-            <small>番号順に全範囲チェック</small>
-          </button>
-          <button class="mode-button" type="button" data-mode="review">
-            <span>苦手復習</span>
-            <small>間違えた問題だけを再実験</small>
-          </button>
-          <button class="mode-button" type="button" data-mode="cards">
-            <span>暗記カード</span>
-            <small>表に出す項目を選んで暗記</small>
-          </button>
-          <button class="mode-button" type="button" data-mode="type">
-            <span>出題タイプ選択</span>
-            <small>形式と問題数を選んで練習</small>
+          <button class="mode-button featured-mode" type="button" data-mode="practice">
+            <span>練習モード</span>
+            <small>条件を選んで自由に練習</small>
           </button>
           <button class="mode-button" type="button" data-mode="exam">
             <span>小テスト本番</span>
             <small>30問ランダムで本番練習</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="review">
+            <span>苦手復習</span>
+            <small>間違えた元素だけ復習</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="cards">
+            <span>暗記カード</span>
+            <small>タップで確認して暗記</small>
           </button>
         </div>
 
@@ -79,10 +71,31 @@
       </section>
 
       <section id="typeScreen" class="setup-screen hidden">
-        <p class="setup-title">出題タイプと問題数を選んでください</p>
+        <p class="setup-title">練習条件を選んでください</p>
         <div id="typeChoices" class="type-grid"></div>
         <div class="actions">
+          <button id="practiceStartButton" class="main-button start-button" type="button">スタート</button>
           <button id="typeBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="reviewScreen" class="setup-screen hidden">
+        <p class="setup-title">苦手リスト</p>
+        <div id="weakListArea" class="weak-list-area"></div>
+        <p id="weakListMessage" class="result-message"></p>
+        <div class="actions">
+          <button id="reviewAllButton" class="main-button" type="button">苦手をまとめて復習</button>
+          <button id="reviewSelectedButton" class="review-button" type="button">選んだ元素を復習</button>
+          <button id="reviewListBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="cardSetupScreen" class="setup-screen hidden">
+        <p class="setup-title">暗記カード設定</p>
+        <div id="cardSetupChoices" class="type-grid"></div>
+        <div class="actions">
+          <button id="cardStartButton" class="main-button start-button" type="button">暗記カードを始める</button>
+          <button id="cardSetupBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
       </section>
 
@@ -118,6 +131,7 @@
 
         <div class="actions">
           <button id="reviewButton" class="review-button hidden" type="button">苦手復習をする</button>
+          <button id="reviewListButton" class="main-button hidden" type="button">苦手リストに戻る</button>
           <button id="resultBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
       </section>
