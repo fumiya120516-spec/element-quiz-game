@@ -374,34 +374,6 @@ h1 {
   align-items: center;
 }
 
-.volume-control {
-  grid-column: 1 / -1;
-  width: min(360px, 100%);
-  justify-self: center;
-  padding: 12px 14px;
-  border: 2px solid #9ee0d5;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #146d61;
-  font-size: 1rem;
-  font-weight: 800;
-  box-shadow: inset 0 -4px 0 rgba(32, 180, 134, 0.1);
-}
-
-.volume-control + .volume-control {
-  margin-top: -4px;
-}
-
-.volume-control span {
-  display: block;
-  margin-bottom: 8px;
-}
-
-.volume-control input {
-  width: 100%;
-  accent-color: #168878;
-}
-
 .toggle-button,
 .main-button,
 .review-button,
@@ -1159,15 +1131,6 @@ h1 {
     margin-top: 16px;
   }
 
-  .volume-control {
-    padding: 10px 12px;
-    font-size: 0.96rem;
-  }
-
-  .volume-control + .volume-control {
-    margin-top: -2px;
-  }
-
   .toggle-button,
   .main-button,
   .review-button,
@@ -1348,5 +1311,312 @@ h1 {
 
   .flash-card strong {
     font-size: 3.9rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  body {
+    align-items: start;
+    min-height: 100dvh;
+    padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  }
+
+  .game {
+    width: min(1040px, 100%);
+    min-height: auto;
+  }
+
+  .quiz-panel {
+    min-height: auto;
+    padding: 12px;
+    border-width: 2px;
+  }
+
+  .top-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  h1 {
+    font-size: clamp(1.55rem, 4.2vw, 2.15rem);
+  }
+
+  .label,
+  .question-type {
+    font-size: 0.86rem;
+  }
+
+  .screen-lead {
+    margin-top: 4px;
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+
+  .lab-icon {
+    width: 28px;
+    height: 34px;
+  }
+
+  .mode-screen {
+    justify-content: start;
+    margin-top: 10px;
+  }
+
+  .mode-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .featured-mode {
+    grid-column: auto;
+  }
+
+  .mode-button,
+  .featured-mode {
+    min-height: 74px;
+    padding: 10px;
+  }
+
+  .mode-button span,
+  .featured-mode span {
+    font-size: clamp(0.98rem, 2.4vw, 1.18rem);
+  }
+
+  .mode-button small {
+    margin-top: 3px;
+    font-size: 0.74rem;
+    line-height: 1.25;
+  }
+
+  .sound-panel {
+    grid-template-columns: repeat(2, minmax(0, 150px));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .toggle-button,
+  .main-button,
+  .review-button,
+  .sub-button,
+  .danger-button {
+    width: auto;
+    min-width: 130px;
+    min-height: 44px;
+    padding: 9px 12px;
+    font-size: 0.92rem;
+  }
+
+  .score-box {
+    min-width: 112px;
+    padding: 8px 10px;
+  }
+
+  .score-box span {
+    font-size: 0.86rem;
+  }
+
+  .score-box strong {
+    font-size: 1.15rem;
+  }
+
+  .progress {
+    height: 10px;
+    margin: 10px 0;
+  }
+
+  .question-area {
+    min-height: 92px;
+    padding: 24px 14px 12px;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.86), 0 5px 0 #c5e8f0;
+  }
+
+  .question-area h2 {
+    margin-top: 6px;
+    font-size: clamp(1.12rem, 3.2vw, 1.55rem);
+  }
+
+  .choices {
+    margin: 12px 0;
+  }
+
+  .answer-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .choice-group {
+    padding: 10px;
+  }
+
+  .choice-group-title {
+    margin-bottom: 8px;
+  }
+
+  .choice-group-title span {
+    font-size: 0.72rem;
+  }
+
+  .choice-group-title strong {
+    font-size: 0.9rem;
+  }
+
+  .group-options {
+    gap: 8px;
+  }
+
+  .choice-button {
+    min-height: 44px;
+    padding: 8px;
+    font-size: clamp(0.9rem, 2.4vw, 1.05rem);
+  }
+
+  .result-message {
+    min-height: 24px;
+    margin-bottom: 10px;
+    font-size: 0.98rem;
+  }
+
+  .setup-screen {
+    margin-top: 10px;
+  }
+
+  .setup-title {
+    margin-bottom: 10px;
+    font-size: 1rem;
+  }
+
+  .type-grid {
+    gap: 10px;
+  }
+
+  .type-section {
+    padding: 10px;
+  }
+
+  .type-section h3 {
+    margin-bottom: 8px;
+    font-size: 0.92rem;
+  }
+
+  .type-option-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .count-option-grid,
+  .order-option-grid,
+  .card-order-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .type-button {
+    min-height: 44px;
+    padding: 8px;
+    font-size: 0.88rem;
+  }
+
+  .weak-list-area,
+  .missed-list-area {
+    margin: 10px 0;
+  }
+
+  .weak-card-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .weak-card {
+    min-height: 66px;
+    padding: 8px;
+  }
+
+  .weak-card span {
+    font-size: 0.72rem;
+  }
+
+  .weak-card strong {
+    font-size: 0.9rem;
+  }
+
+  .weak-card em {
+    font-size: 1rem;
+  }
+
+  .danger-actions {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .missed-list {
+    padding: 10px;
+  }
+
+  .missed-list h3 {
+    font-size: 1rem;
+  }
+
+  .missed-list ul {
+    gap: 8px;
+  }
+
+  .missed-list li {
+    padding: 9px;
+  }
+
+  .card-settings {
+    flex-direction: row;
+    margin-top: 10px;
+  }
+
+  .card-settings select {
+    min-height: 38px;
+  }
+
+  .flash-card {
+    min-height: 160px;
+    margin: 10px 0;
+    padding: 16px;
+  }
+
+  .flash-card strong {
+    font-size: clamp(2.5rem, 9vw, 4.2rem);
+  }
+
+  .card-hint {
+    font-size: 0.9rem;
+  }
+
+  .card-answer {
+    min-height: 36px;
+    font-size: clamp(1.05rem, 3.2vw, 1.35rem);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 380px) {
+  .top-row {
+    gap: 8px;
+  }
+
+  .screen-lead {
+    display: none;
+  }
+
+  .mode-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .answer-groups {
+    gap: 8px;
+  }
+
+  .choice-button {
+    min-height: 38px;
+    font-size: 0.86rem;
+  }
+
+  .flash-card {
+    min-height: 132px;
   }
 }
