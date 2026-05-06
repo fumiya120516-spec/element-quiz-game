@@ -34,40 +34,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const questionTypes = [
     {
-      id: "number-name",
-      label: "番号 → 元素名",
-      question: (element) => `元素番号 ${element.number} の元素名は？`,
-      answerKey: "name"
+      id: "from-number",
+      label: "番号から答える",
+      promptLabel: "元素番号",
+      question: (element) => `元素番号 ${element.number} の元素名と元素記号は？`,
+      promptValue: (element) => String(element.number),
+      answer: (element) => `${element.name}・${element.symbol}`
     },
     {
-      id: "number-symbol",
-      label: "番号 → 元素記号",
-      question: (element) => `元素番号 ${element.number} の元素記号は？`,
-      answerKey: "symbol"
+      id: "from-name",
+      label: "元素名から答える",
+      promptLabel: "元素名",
+      question: (element) => `「${element.name}」の元素番号と元素記号は？`,
+      promptValue: (element) => element.name,
+      answer: (element) => `${element.number}番・${element.symbol}`
     },
     {
-      id: "name-number",
-      label: "元素名 → 番号",
-      question: (element) => `「${element.name}」の元素番号は？`,
-      answerKey: "number"
-    },
-    {
-      id: "name-symbol",
-      label: "元素名 → 元素記号",
-      question: (element) => `「${element.name}」の元素記号は？`,
-      answerKey: "symbol"
-    },
-    {
-      id: "symbol-number",
-      label: "元素記号 → 番号",
-      question: (element) => `元素記号 ${element.symbol} の元素番号は？`,
-      answerKey: "number"
-    },
-    {
-      id: "symbol-name",
-      label: "元素記号 → 元素名",
-      question: (element) => `元素記号 ${element.symbol} の元素名は？`,
-      answerKey: "name"
+      id: "from-symbol",
+      label: "元素記号から答える",
+      promptLabel: "元素記号",
+      question: (element) => `元素記号 ${element.symbol} の元素番号と元素名は？`,
+      promptValue: (element) => element.symbol,
+      answer: (element) => `${element.number}番・${element.name}`
     }
   ];
 
@@ -102,6 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const typeBackButton = document.getElementById("typeBackButton");
   const bgmToggle = document.getElementById("bgmToggle");
   const sfxToggle = document.getElementById("sfxToggle");
+  const bgmVolume = document.getElementById("bgmVolume");
+  const bgmVolumeLabel = document.getElementById("bgmVolumeLabel");
+  const sfxVolume = document.getElementById("sfxVolume");
+  const sfxVolumeLabel = document.getElementById("sfxVolumeLabel");
   const cardFrontSelect = document.getElementById("cardFrontSelect");
   const flashCard = document.getElementById("flashCard");
   const cardHint = document.getElementById("cardHint");
@@ -112,21 +104,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const cardBackButton = document.getElementById("cardBackButton");
 
   const storageKeys = {
-    weak: "elementQuizWeakList",
+    weak: "elementQuizWeakElements",
     bgm: "elementQuizBgmOn",
-    sfx: "elementQuizSfxOn"
+    sfx: "elementQuizSfxOn",
+    bgmVolume: "elementQuizBgmVolume",
+    sfxVolume: "elementQuizSfxVolume"
   };
 
   const sounds = {
-    click: createAudio("./assets/sounds/click.mp3", 0.28),
-    correct: createAudio("./assets/sounds/correct.mp3", 0.32),
-    wrong: createAudio("./assets/sounds/wrong.mp3", 0.28),
-    result: createAudio("./assets/sounds/result.mp3", 0.35),
-    bgm: createAudio("./assets/sounds/bgm.mp3", 0.16, true)
+    click: createAudio("./assets/sounds/click.mp3", 0.5),
+    correct: createAudio("./assets/sounds/correct.mp3", 0.5),
+    wrong: createAudio("./assets/sounds/wrong.mp3", 0.5),
+    result: createAudio("./assets/sounds/result.mp3", 0.5),
+    bgm: createAudio("./assets/sounds/bgm.mp3", 0.3, true)
   };
 
   let bgmOn = localStorage.getItem(storageKeys.bgm) === "true";
   let sfxOn = localStorage.getItem(storageKeys.sfx) !== "false";
+  let bgmVolumeValue = getSavedVolume(storageKeys.bgmVolume, 30);
+  let sfxVolumeValue = getSavedVolume(storageKeys.sfxVolume, 50);
   let weakList = loadWeakList();
   let activeQuiz = null;
   let cardDeck = [];
@@ -150,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
+      sounds[name].volume = sfxVolumeValue / 100;
       sounds[name].currentTime = 0;
       sounds[name].play().catch(() => {});
     } catch (error) {
@@ -163,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
+      sounds.bgm.volume = bgmVolumeValue / 100;
       sounds.bgm.play().catch(() => {});
     } catch (error) {
       // iPhone may block audio until user interaction.
@@ -173,11 +171,31 @@ document.addEventListener("DOMContentLoaded", () => {
     sounds.bgm.pause();
   }
 
-  function updateSoundButtons() {
+  function updateSoundControls() {
     bgmToggle.textContent = bgmOn ? "BGM ON" : "BGM OFF";
     bgmToggle.classList.toggle("active", bgmOn);
     sfxToggle.textContent = sfxOn ? "効果音 ON" : "効果音 OFF";
     sfxToggle.classList.toggle("active", sfxOn);
+    bgmVolume.value = String(bgmVolumeValue);
+    sfxVolume.value = String(sfxVolumeValue);
+    bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
+    sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
+    sounds.bgm.volume = bgmVolumeValue / 100;
+    setSfxVolume();
+  }
+
+  function setSfxVolume() {
+    ["click", "correct", "wrong", "result"].forEach((name) => {
+      sounds[name].volume = sfxVolumeValue / 100;
+    });
+  }
+
+  function getSavedVolume(key, defaultValue) {
+    const saved = Number(localStorage.getItem(key));
+    if (Number.isFinite(saved)) {
+      return Math.min(100, Math.max(0, Math.round(saved)));
+    }
+    return defaultValue;
   }
 
   function randomItem(list) {
@@ -193,14 +211,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return copied;
   }
 
-  function getElementByKey(key) {
-    return elements.find((element) => String(element.number) === String(key));
+  function getElementByNumber(number) {
+    return elements.find((element) => element.number === Number(number));
   }
 
   function loadWeakList() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKeys.weak) || "[]");
-      return Array.isArray(saved) ? saved : [];
+      return Array.isArray(saved) ? saved.map(Number).filter(Boolean) : [];
     } catch (error) {
       return [];
     }
@@ -210,47 +228,29 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(storageKeys.weak, JSON.stringify(weakList));
   }
 
-  function weakKey(question) {
-    return `${question.element.number}:${question.type.id}`;
-  }
-
-  function addWeakQuestion(question) {
-    const key = weakKey(question);
-    if (!weakList.some((item) => item.key === key)) {
-      weakList.push({
-        key,
-        elementNumber: question.element.number,
-        typeId: question.type.id
-      });
+  function addWeakElement(element) {
+    if (!weakList.includes(element.number)) {
+      weakList.push(element.number);
       saveWeakList();
     }
   }
 
-  function removeWeakQuestion(question) {
-    const key = weakKey(question);
-    weakList = weakList.filter((item) => item.key !== key);
+  function removeWeakElement(element) {
+    weakList = weakList.filter((number) => number !== element.number);
     saveWeakList();
   }
 
-  function hydrateWeakItem(item) {
-    const element = getElementByKey(item.elementNumber);
-    const type = questionTypes.find((questionTypeItem) => questionTypeItem.id === item.typeId);
-    if (!element || !type) {
-      return null;
-    }
-    return makeQuestion(element, type);
-  }
-
-  function makeQuestion(element, type) {
-    const answer = String(element[type.answerKey]);
+  function makeQuestion(element, type = randomItem(questionTypes)) {
+    const answer = type.answer(element);
     const wrongAnswers = elements
       .filter((candidate) => candidate.number !== element.number)
-      .map((candidate) => String(candidate[type.answerKey]));
+      .map((candidate) => type.answer(candidate));
 
     return {
       element,
       type,
       prompt: type.question(element),
+      promptValue: type.promptValue(element),
       answer,
       choices: shuffle([answer, ...shuffle(wrongAnswers).slice(0, 3)])
     };
@@ -260,8 +260,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.from({ length: count }, () => makeQuestion(randomItem(sourceElements), randomItem(typeSource)));
   }
 
-  function makeAllElementQuestions(randomType = true, fixedType = null) {
-    return shuffle(elements).map((element) => makeQuestion(element, randomType ? randomItem(questionTypes) : fixedType));
+  function makeAllElementQuestions(typeSource = questionTypes) {
+    return shuffle(elements).map((element) => makeQuestion(element, randomItem(typeSource)));
   }
 
   function showOnly(screenName) {
@@ -276,17 +276,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showTopScreen() {
     showOnly("mode");
-    screenLead.textContent = "小テスト前に、元素番号・元素名・元素記号を楽しく確認しよう。";
+    screenLead.textContent = "問題に出ていない2つの情報をセットで答えて、小テスト前に確認しよう。";
     progressBar.style.width = "0";
     scoreText.textContent = "0点";
     questionCount.textContent = "";
     missedListArea.innerHTML = "";
-    updateSoundButtons();
+    updateSoundControls();
   }
 
   function showTypeScreen() {
     showOnly("type");
-    screenLead.textContent = "出題タイプを選んで、同じ形式だけ10問練習できます。";
+    screenLead.textContent = "問題に出す情報を選んで、残り2つをセットで答える練習ができます。";
   }
 
   function startQuiz(config) {
@@ -341,6 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const question = activeQuiz.questions[activeQuiz.index];
     const correct = selectedChoice === question.answer;
     activeQuiz.answered = true;
+    question.userAnswer = selectedChoice;
 
     if (correct) {
       playSound("correct");
@@ -349,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultMessage.textContent = "実験成功！正解です。";
       resultMessage.classList.add("good");
       if (activeQuiz.removeWeakOnCorrect) {
-        removeWeakQuestion(question);
+        removeWeakElement(question.element);
       }
     } else {
       playSound("wrong");
@@ -360,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultMessage.classList.add("bad");
       activeQuiz.missed.push(question);
       if (activeQuiz.saveMistakes) {
-        addWeakQuestion(question);
+        addWeakElement(question.element);
       }
     }
 
@@ -418,15 +419,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const items = missed.map((question) => `
       <li>
         <span>${question.type.label}</span>
-        <strong>${question.prompt}</strong>
+        <strong>問題：${question.promptValue}</strong>
         <em>正解：${question.answer}</em>
+        <em>あなたの答え：${question.userAnswer || "未回答"}</em>
       </li>
     `).join("");
 
     missedListArea.innerHTML = `
       <div class="missed-list">
         <h3>間違えた問題一覧</h3>
-        <p>${total}問中 ${missed.length}問を苦手リストに保存しました。正答率は ${percent}% です。</p>
+        <p>${total}問中 ${missed.length}問の元素を苦手リストに保存しました。正答率は ${percent}% です。</p>
         <ul>${items}</ul>
       </div>
     `;
@@ -434,12 +436,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startReviewMode() {
     playSound("click");
-    const questions = weakList.map(hydrateWeakItem).filter(Boolean);
+    const weakElements = weakList.map(getElementByNumber).filter(Boolean);
+    const questions = weakElements.map((element) => makeQuestion(element, randomItem(questionTypes)));
     if (questions.length === 0) {
       showOnly("result");
       resultTitle.textContent = "苦手復習";
       finalScoreText.textContent = "苦手な問題はまだありません";
-      finalComment.textContent = "ランダム10問や全30問チェックで間違えた問題が、ここに保存されます。";
+      finalComment.textContent = "ランダム10問や全30問チェックで間違えた元素が、ここに保存されます。";
       missedListArea.innerHTML = "";
       reviewButton.classList.add("hidden");
       return;
@@ -456,13 +459,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildTypeButtons() {
     typeChoices.innerHTML = "";
-    questionTypes.forEach((type) => {
+    const options = [
+      ...questionTypes,
+      {
+        id: "random",
+        label: "完全ランダム",
+        random: true
+      }
+    ];
+
+    options.forEach((type) => {
       const button = document.createElement("button");
       button.className = "type-button";
       button.type = "button";
       button.textContent = type.label;
       button.addEventListener("click", () => {
-        const questions = makeRandomQuestions(10, elements, [type]);
+        const questions = type.random
+          ? makeRandomQuestions(10)
+          : makeRandomQuestions(10, elements, [type]);
         startQuiz({
           mode: "type",
           title: type.label,
@@ -479,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cardDeck = shuffle(elements);
     cardIndex = 0;
     showOnly("card");
-    screenLead.textContent = "カードをタップして答えを確認。小テスト前の暗記に使えます。";
+    screenLead.textContent = "カードをタップして、表に出ていない2つの情報を確認できます。";
     showCard();
   }
 
@@ -507,17 +521,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getCardAnswer(element, frontKey) {
-    const parts = [];
-    if (frontKey !== "symbol") {
-      parts.push(`元素記号 ${element.symbol}`);
+    if (frontKey === "number") {
+      return `${element.name}・${element.symbol}`;
     }
-    if (frontKey !== "name") {
-      parts.push(`元素名 ${element.name}`);
+    if (frontKey === "name") {
+      return `${element.number}番・${element.symbol}`;
     }
-    if (frontKey !== "number") {
-      parts.push(`元素番号 ${element.number}`);
-    }
-    return parts.join("・");
+    return `${element.number}番・${element.name}`;
   }
 
   function revealCard() {
@@ -557,7 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startQuiz({ mode: "random", title: "ランダム10問", questions: makeRandomQuestions(10) });
       }
       if (mode === "all") {
-        startQuiz({ mode: "all", title: "全30問チェック", questions: makeAllElementQuestions(true) });
+        startQuiz({ mode: "all", title: "全30問チェック", questions: makeAllElementQuestions() });
       }
       if (mode === "review") {
         startReviewMode();
@@ -574,7 +584,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startQuiz({
           mode: "exam",
           title: "小テスト本番",
-          questions: makeAllElementQuestions(true),
+          questions: makeAllElementQuestions(),
           showScoreDuringQuiz: false
         });
       }
@@ -611,7 +621,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bgmToggle.addEventListener("click", () => {
     bgmOn = !bgmOn;
     localStorage.setItem(storageKeys.bgm, String(bgmOn));
-    updateSoundButtons();
+    updateSoundControls();
     if (bgmOn) {
       startBgm();
     } else {
@@ -622,11 +632,25 @@ document.addEventListener("DOMContentLoaded", () => {
   sfxToggle.addEventListener("click", () => {
     sfxOn = !sfxOn;
     localStorage.setItem(storageKeys.sfx, String(sfxOn));
-    updateSoundButtons();
+    updateSoundControls();
     playSound("click");
   });
 
+  bgmVolume.addEventListener("input", () => {
+    bgmVolumeValue = Number(bgmVolume.value);
+    localStorage.setItem(storageKeys.bgmVolume, String(bgmVolumeValue));
+    bgmVolumeLabel.textContent = `BGM音量：${bgmVolumeValue}%`;
+    sounds.bgm.volume = bgmVolumeValue / 100;
+  });
+
+  sfxVolume.addEventListener("input", () => {
+    sfxVolumeValue = Number(sfxVolume.value);
+    localStorage.setItem(storageKeys.sfxVolume, String(sfxVolumeValue));
+    sfxVolumeLabel.textContent = `効果音音量：${sfxVolumeValue}%`;
+    setSfxVolume();
+  });
+
   buildTypeButtons();
-  updateSoundButtons();
+  updateSoundControls();
   showTopScreen();
 });
