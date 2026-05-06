@@ -280,11 +280,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function makeRandomQuestions(count, sourceElements = elements, typeSource = questionTypes) {
-    return Array.from({ length: count }, () => makeQuestion(randomItem(sourceElements), randomItem(typeSource)));
+    const selectedElements = count <= sourceElements.length
+      ? shuffle(sourceElements).slice(0, count)
+      : Array.from({ length: count }, () => randomItem(sourceElements));
+    return selectedElements.map((element) => makeQuestion(element, randomItem(typeSource)));
   }
 
-  function makeAllElementQuestions(typeSource = questionTypes) {
-    return shuffle(elements).map((element) => makeQuestion(element, randomItem(typeSource)));
+  function makeElementSetQuestions({ count, ordered = false, typeSource = questionTypes }) {
+    const sourceElements = count === elements.length
+      ? [...elements]
+      : shuffle(elements).slice(0, count);
+    const sortedElements = ordered
+      ? sourceElements.sort((a, b) => a.number - b.number)
+      : shuffle(sourceElements);
+
+    return sortedElements.map((element) => makeQuestion(element, randomItem(typeSource)));
   }
 
   function showOnly(screenName) {
@@ -299,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showTopScreen() {
     showOnly("mode");
-    screenLead.textContent = "問題に出ていない2つの情報を別々に選んで、小テスト前に確認しよう。";
+    screenLead.textContent = "すぐ練習、番号順チェック、本番練習から選んで小テスト対策を始めよう。";
     progressBar.style.width = "0";
     scoreText.textContent = "0点";
     questionCount.textContent = "";
@@ -309,7 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showTypeScreen() {
     showOnly("type");
-    screenLead.textContent = "問題に出す情報を選んで、残り2つを別々に答える練習ができます。";
+    screenLead.textContent = "出題形式と問題数を選んで、苦手な形を集中練習できます。";
+    buildTypeButtons();
   }
 
   function startQuiz(config) {
@@ -563,6 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildTypeButtons() {
     typeChoices.innerHTML = "";
+    let selectedType = null;
     const options = [
       ...questionTypes,
       {
@@ -572,23 +584,62 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     ];
 
+    const typeSection = document.createElement("section");
+    typeSection.className = "type-section";
+    typeSection.innerHTML = "<h3>1. 出題タイプを選ぶ</h3>";
+
+    const typeGrid = document.createElement("div");
+    typeGrid.className = "type-option-grid";
+
     options.forEach((type) => {
       const button = document.createElement("button");
       button.className = "type-button";
       button.type = "button";
       button.textContent = type.label;
       button.addEventListener("click", () => {
-        const questions = type.random
-          ? makeRandomQuestions(10)
-          : makeRandomQuestions(10, elements, [type]);
+        selectedType = type;
+        screenLead.textContent = "出題形式を選びました。次に10問か30問を選んでください。";
+        typeGrid.querySelectorAll(".type-button").forEach((typeButton) => typeButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      typeGrid.appendChild(button);
+    });
+
+    typeSection.appendChild(typeGrid);
+
+    const countSection = document.createElement("section");
+    countSection.className = "type-section";
+    countSection.innerHTML = "<h3>2. 問題数を選んでスタート</h3>";
+
+    const countGrid = document.createElement("div");
+    countGrid.className = "count-option-grid";
+
+    [10, 30].forEach((count) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = `${count}問`;
+      button.addEventListener("click", () => {
+        if (!selectedType) {
+          screenLead.textContent = "先に出題タイプを選んでください。";
+          return;
+        }
+
+        const questions = selectedType.random
+          ? makeElementSetQuestions({ count })
+          : makeElementSetQuestions({ count, typeSource: [selectedType] });
         startQuiz({
           mode: "type",
-          title: type.label,
+          title: `${selectedType.label} ${count}問`,
           questions
         });
       });
-      typeChoices.appendChild(button);
+      countGrid.appendChild(button);
     });
+
+    countSection.appendChild(countGrid);
+    typeChoices.appendChild(typeSection);
+    typeChoices.appendChild(countSection);
   }
 
   function startCardMode() {
@@ -671,7 +722,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startQuiz({ mode: "random", title: "ランダム10問", questions: makeRandomQuestions(10) });
       }
       if (mode === "all") {
-        startQuiz({ mode: "all", title: "全30問チェック", questions: makeAllElementQuestions() });
+        startQuiz({ mode: "all", title: "全30問チェック", questions: makeElementSetQuestions({ count: elements.length, ordered: true }) });
       }
       if (mode === "review") {
         startReviewMode();
@@ -688,7 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startQuiz({
           mode: "exam",
           title: "小テスト本番",
-          questions: makeAllElementQuestions(),
+          questions: makeElementSetQuestions({ count: elements.length }),
           showScoreDuringQuiz: false
         });
       }
@@ -756,7 +807,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setSfxVolume();
   });
 
-  buildTypeButtons();
   updateSoundControls();
   showTopScreen();
 });
