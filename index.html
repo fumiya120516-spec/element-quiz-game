@@ -15,6 +15,14 @@
     <span class="atom atom-b"></span>
     <span class="molecule molecule-a"></span>
     <span class="molecule molecule-b"></span>
+    <span class="orbital orbital-a"></span>
+    <span class="orbital orbital-b"></span>
+    <span class="lab-glass glass-a"></span>
+    <span class="lab-glass glass-b"></span>
+    <span class="data-panel panel-a"></span>
+    <span class="data-panel panel-b"></span>
+    <span class="bubble-field bubble-a"></span>
+    <span class="bubble-field bubble-b"></span>
   </div>
 
   <main class="game">
@@ -56,6 +64,12 @@
           </button>
         </div>
 
+        <div class="top-tools">
+          <button class="periodic-link-button" type="button" data-mode="periodic">
+            元素周期表を見る
+          </button>
+        </div>
+
         <div class="sound-panel" aria-label="音の設定">
           <button id="bgmToggle" class="toggle-button" type="button">BGM OFF</button>
           <button id="sfxToggle" class="toggle-button" type="button">効果音 ON</button>
@@ -91,6 +105,19 @@
         <div class="actions">
           <button id="cardStartButton" class="main-button start-button" type="button">暗記カードを始める</button>
           <button id="cardSetupBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="periodicScreen" class="setup-screen hidden">
+        <p class="setup-title">小テスト範囲の元素周期表</p>
+        <label class="periodic-search" for="periodicSearch">
+          <span>元素を検索</span>
+          <input id="periodicSearch" type="search" placeholder="番号・記号・元素名で検索">
+        </label>
+        <div id="periodicTableArea" class="periodic-table-area"></div>
+        <p id="periodicMessage" class="result-message"></p>
+        <div class="actions">
+          <button id="periodicBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
       </section>
 
