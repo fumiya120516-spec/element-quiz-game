@@ -143,6 +143,144 @@ body::after {
   transform: rotate(18deg) scale(0.82);
 }
 
+.orbital {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  opacity: 0.22;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.85) 0 4px, transparent 5px),
+    conic-gradient(from 20deg, transparent 0 18%, rgba(21, 188, 205, 0.52) 19% 21%, transparent 22% 48%, rgba(32, 180, 134, 0.42) 49% 51%, transparent 52% 100%);
+  box-shadow: inset 0 0 0 2px rgba(69, 174, 227, 0.35);
+}
+
+.orbital::before,
+.orbital::after {
+  content: "";
+  position: absolute;
+  inset: 36px;
+  border: 2px solid rgba(69, 174, 227, 0.42);
+  border-radius: 50%;
+}
+
+.orbital::before {
+  transform: rotate(58deg) scaleX(0.38);
+}
+
+.orbital::after {
+  transform: rotate(-58deg) scaleX(0.38);
+}
+
+.orbital-a {
+  left: 18%;
+  bottom: 6%;
+}
+
+.orbital-b {
+  right: 18%;
+  top: 6%;
+  transform: scale(0.68) rotate(18deg);
+}
+
+.lab-glass,
+.data-panel,
+.bubble-field {
+  position: absolute;
+  opacity: 0.18;
+}
+
+.lab-glass {
+  width: 86px;
+  height: 112px;
+  border: 3px solid rgba(21, 136, 120, 0.62);
+  border-top: 0;
+  border-radius: 8px 8px 24px 24px;
+  background:
+    linear-gradient(to top, rgba(53, 216, 192, 0.28) 0 38%, transparent 39%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.5), transparent 55%);
+}
+
+.lab-glass::before {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 28px;
+  top: -28px;
+  left: 26px;
+  border: 3px solid rgba(21, 136, 120, 0.62);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+
+.glass-a {
+  right: 7%;
+  top: 34%;
+  transform: rotate(10deg);
+}
+
+.glass-b {
+  left: 4%;
+  bottom: 34%;
+  transform: scale(0.72) rotate(-12deg);
+}
+
+.data-panel {
+  width: 190px;
+  height: 120px;
+  border: 2px solid rgba(69, 174, 227, 0.36);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(69, 174, 227, 0.26) 1px, transparent 1px),
+    linear-gradient(rgba(69, 174, 227, 0.26) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(151, 236, 255, 0.18));
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.data-panel::before {
+  content: "H  He  Li";
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  color: rgba(20, 59, 103, 0.5);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.panel-a {
+  top: 2%;
+  left: 31%;
+  transform: rotate(-7deg);
+}
+
+.panel-b {
+  right: 28%;
+  bottom: 2%;
+  transform: scale(0.78) rotate(8deg);
+}
+
+.bubble-field {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.95) 0 6px, transparent 7px),
+    radial-gradient(circle at 70% 24%, rgba(157, 242, 255, 0.75) 0 8px, transparent 9px),
+    radial-gradient(circle at 52% 70%, rgba(156, 239, 203, 0.7) 0 10px, transparent 11px),
+    radial-gradient(circle at 28% 82%, rgba(255, 255, 255, 0.8) 0 5px, transparent 6px);
+}
+
+.bubble-a {
+  left: 12%;
+  top: 32%;
+}
+
+.bubble-b {
+  right: 9%;
+  bottom: 30%;
+  transform: scale(0.78);
+}
+
 .game {
   width: min(980px, 100%);
   position: relative;
@@ -150,10 +288,12 @@ body::after {
 }
 
 .quiz-panel {
-  background: rgba(255, 255, 255, 0.96);
-  border: 3px solid #bdeee2;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 253, 255, 0.96)),
+    radial-gradient(circle at 12% 0%, rgba(69, 174, 227, 0.18), transparent 14rem);
+  border: 3px solid rgba(121, 221, 225, 0.85);
   border-radius: 8px;
-  box-shadow: 0 20px 48px rgba(43, 90, 126, 0.2), 0 0 0 8px rgba(255, 255, 255, 0.32);
+  box-shadow: 0 20px 48px rgba(43, 90, 126, 0.2), 0 0 0 8px rgba(255, 255, 255, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.86);
   padding: clamp(22px, 4vw, 40px);
   position: relative;
   overflow: hidden;
@@ -165,8 +305,9 @@ body::after {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(255, 178, 51, 0.16), transparent 38%),
-    repeating-linear-gradient(90deg, rgba(69, 174, 227, 0.1) 0 1px, transparent 1px 54px);
+    linear-gradient(90deg, rgba(32, 180, 134, 0.12), transparent 32%),
+    repeating-linear-gradient(90deg, rgba(69, 174, 227, 0.1) 0 1px, transparent 1px 54px),
+    radial-gradient(circle at 90% 8%, rgba(255, 255, 255, 0.95) 0 2px, transparent 3px);
 }
 
 .quiz-panel > * {
@@ -182,6 +323,13 @@ body::after {
 
 .title-area {
   min-width: 0;
+  padding: 10px 14px 12px;
+  border-left: 6px solid rgba(32, 180, 134, 0.75);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(233, 255, 249, 0.9), rgba(255, 255, 255, 0.58)),
+    linear-gradient(135deg, rgba(69, 174, 227, 0.12), transparent 58%);
+  box-shadow: inset 0 0 0 1px rgba(158, 224, 213, 0.52);
 }
 
 .label,
@@ -316,13 +464,14 @@ h1 {
   border: 3px solid #9eddec;
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(255, 190, 61, 0.18), transparent 38%),
-    linear-gradient(#ffffff, #f2fbff);
+    radial-gradient(circle at 92% 18%, rgba(32, 180, 134, 0.16), transparent 4.5rem),
+    linear-gradient(135deg, rgba(69, 174, 227, 0.12), transparent 42%),
+    linear-gradient(#ffffff, #eefbff);
   color: #16314f;
   font: inherit;
   cursor: pointer;
   text-align: left;
-  box-shadow: 0 8px 0 #c5e8f0, 0 16px 24px rgba(43, 90, 126, 0.12);
+  box-shadow: 0 8px 0 #b7e1ec, 0 16px 24px rgba(43, 90, 126, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.86);
   transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
 }
 
@@ -341,6 +490,7 @@ h1 {
   display: block;
   font-size: clamp(1.35rem, 2.4vw, 1.85rem);
   font-weight: 800;
+  color: #12395f;
 }
 
 .mode-button small {
@@ -355,10 +505,44 @@ h1 {
   grid-column: 1 / -1;
   min-height: 170px;
   background:
-    radial-gradient(circle at 90% 18%, rgba(255, 190, 61, 0.34), transparent 8rem),
-    linear-gradient(135deg, #e9fff9, #ffffff 52%, #fff7df);
+    radial-gradient(circle at 90% 18%, rgba(32, 180, 134, 0.24), transparent 8rem),
+    radial-gradient(circle at 8% 82%, rgba(69, 174, 227, 0.22), transparent 7rem),
+    linear-gradient(135deg, #e9fff9, #ffffff 52%, #effaff);
   border-color: #20b486;
-  box-shadow: 0 10px 0 #9ed6cf, 0 18px 28px rgba(32, 180, 134, 0.16);
+  box-shadow: 0 10px 0 #9ed6cf, 0 18px 28px rgba(32, 180, 134, 0.16), inset 0 0 0 1px #ffffff;
+}
+
+.top-tools {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.periodic-link-button {
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 2px solid rgba(69, 174, 227, 0.7);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(232, 251, 255, 0.9)),
+    repeating-linear-gradient(90deg, rgba(69, 174, 227, 0.12) 0 1px, transparent 1px 22px);
+  color: #14536e;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #c5e8f0, 0 12px 18px rgba(43, 90, 126, 0.1);
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+.periodic-link-button:hover,
+.periodic-link-button:focus-visible {
+  border-color: #20b486;
+  background: #effffc;
+  transform: translateY(2px);
+  outline: none;
 }
 
 .featured-mode span {
@@ -427,10 +611,24 @@ h1 {
   background:
     radial-gradient(circle at 96% 20%, rgba(32, 180, 134, 0.16), transparent 4rem),
     linear-gradient(#dff5ff 0 20px, transparent 20px),
-    repeating-linear-gradient(#ffffff 0 34px, #f3fbff 35px 36px);
+    repeating-linear-gradient(#ffffff 0 34px, #f3fbff 35px 36px),
+    linear-gradient(90deg, rgba(69, 174, 227, 0.1) 1px, transparent 1px);
   border: 3px solid #83c9de;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.86), 0 10px 0 #c5e8f0;
   position: relative;
+}
+
+.question-area::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  width: 72px;
+  height: 24px;
+  opacity: 0.34;
+  background:
+    linear-gradient(90deg, #20b486 0 20%, transparent 20% 28%, #45aee3 28% 48%, transparent 48% 56%, #ffbe3d 56% 76%, transparent 76%);
+  border-radius: 999px;
 }
 
 .question-area::before {
@@ -663,8 +861,82 @@ h1 {
   padding: 16px;
   border: 3px solid #a9e2ef;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.92);
+  background:
+    radial-gradient(circle at 92% 20%, rgba(69, 174, 227, 0.12), transparent 5rem),
+    rgba(255, 255, 255, 0.92);
   box-shadow: 0 8px 0 #c5e8f0, 0 14px 20px rgba(43, 90, 126, 0.1);
+}
+
+.periodic-search {
+  display: grid;
+  gap: 8px;
+  width: min(420px, 100%);
+  margin: 0 auto 18px;
+  color: #143b67;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.periodic-search input {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 2px solid #9eddec;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #16314f;
+  font: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+.periodic-search input:focus {
+  border-color: #20b486;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(32, 180, 134, 0.16);
+}
+
+.periodic-table-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.periodic-cell {
+  min-height: 104px;
+  padding: 10px;
+  border: 2px solid rgba(69, 174, 227, 0.72);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(32, 180, 134, 0.18), transparent 3.5rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(239, 252, 255, 0.94));
+  box-shadow: 0 5px 0 #c5e8f0, 0 10px 16px rgba(43, 90, 126, 0.1);
+}
+
+.periodic-cell span,
+.periodic-cell strong,
+.periodic-cell em {
+  display: block;
+}
+
+.periodic-cell span {
+  color: #13806f;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.periodic-cell strong {
+  margin-top: 4px;
+  color: #143b67;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.periodic-cell em {
+  margin-top: 8px;
+  color: #4f6578;
+  font-size: 0.92rem;
+  font-style: normal;
+  font-weight: 800;
 }
 
 .type-section h3 {
@@ -1125,6 +1397,16 @@ h1 {
     font-size: 0.92rem;
   }
 
+  .top-tools {
+    margin-top: 12px;
+  }
+
+  .periodic-link-button {
+    width: 100%;
+    min-height: 50px;
+    font-size: 0.98rem;
+  }
+
   .sound-panel {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -1214,6 +1496,25 @@ h1 {
     font-size: 1rem;
   }
 
+  .periodic-search {
+    margin-bottom: 14px;
+    font-size: 0.96rem;
+  }
+
+  .periodic-table-area {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .periodic-cell {
+    min-height: 92px;
+    padding: 10px;
+  }
+
+  .periodic-cell strong {
+    font-size: 1.6rem;
+  }
+
   .missed-list-area {
     margin: 18px 0;
   }
@@ -1289,6 +1590,10 @@ h1 {
 
   .mode-button small {
     font-size: 0.86rem;
+  }
+
+  .periodic-table-area {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .question-area {
@@ -1387,6 +1692,16 @@ h1 {
     margin-top: 3px;
     font-size: 0.74rem;
     line-height: 1.25;
+  }
+
+  .top-tools {
+    margin-top: 8px;
+  }
+
+  .periodic-link-button {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 0.84rem;
   }
 
   .sound-panel {
@@ -1515,6 +1830,44 @@ h1 {
     min-height: 44px;
     padding: 8px;
     font-size: 0.88rem;
+  }
+
+  .periodic-search {
+    grid-template-columns: 96px 1fr;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 0.86rem;
+  }
+
+  .periodic-search input {
+    min-height: 38px;
+    padding: 7px 10px;
+    font-size: 0.86rem;
+  }
+
+  .periodic-table-area {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .periodic-cell {
+    min-height: 62px;
+    padding: 7px;
+  }
+
+  .periodic-cell span {
+    font-size: 0.68rem;
+  }
+
+  .periodic-cell strong {
+    font-size: 1.1rem;
+  }
+
+  .periodic-cell em {
+    margin-top: 4px;
+    font-size: 0.68rem;
   }
 
   .weak-list-area,
