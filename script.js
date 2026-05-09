@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     type: document.getElementById("typeScreen"),
     review: document.getElementById("reviewScreen"),
     cardSetup: document.getElementById("cardSetupScreen"),
+    periodic: document.getElementById("periodicScreen"),
     quiz: document.getElementById("quizScreen"),
     result: document.getElementById("resultScreen"),
     card: document.getElementById("cardScreen")
@@ -111,6 +112,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const cardSetupChoices = document.getElementById("cardSetupChoices");
   const cardStartButton = document.getElementById("cardStartButton");
   const cardSetupBackButton = document.getElementById("cardSetupBackButton");
+  const periodicSearch = document.getElementById("periodicSearch");
+  const periodicTableArea = document.getElementById("periodicTableArea");
+  const periodicMessage = document.getElementById("periodicMessage");
+  const periodicBackButton = document.getElementById("periodicBackButton");
   const bgmToggle = document.getElementById("bgmToggle");
   const sfxToggle = document.getElementById("sfxToggle");
   const cardFrontSelect = document.getElementById("cardFrontSelect");
@@ -293,12 +298,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function makeElementSetQuestions({ count, ordered = false, typeSource = questionTypes }) {
-    const sourceElements = count === elements.length
-      ? [...elements]
-      : shuffle(elements).slice(0, count);
-    const sortedElements = ordered
-      ? sourceElements.sort((a, b) => a.number - b.number)
-      : shuffle(sourceElements);
+    const orderedElements = [...elements].sort((a, b) => a.number - b.number);
+    const sourceElements = ordered
+      ? orderedElements.slice(0, count)
+      : (count === elements.length ? shuffle(elements) : shuffle(elements).slice(0, count));
+    const sortedElements = ordered ? sourceElements : sourceElements;
 
     return sortedElements.map((element) => makeQuestion(element, randomItem(typeSource)));
   }
@@ -330,6 +334,45 @@ document.addEventListener("DOMContentLoaded", () => {
     showOnly("type");
     screenLead.textContent = "練習条件を選べます。初期設定のままなら、短時間のランダム10問です。";
     buildPracticeSettings();
+  }
+
+  function showPeriodicScreen() {
+    showOnly("periodic");
+    screenLead.textContent = "小テスト範囲の30元素を、周期表風の研究データカードで確認できます。";
+    periodicSearch.value = "";
+    periodicMessage.textContent = "";
+    periodicMessage.className = "result-message";
+    renderPeriodicTable(elements);
+  }
+
+  function renderPeriodicTable(sourceElements) {
+    const sortedElements = [...sourceElements].sort((a, b) => a.number - b.number);
+    if (sortedElements.length === 0) {
+      periodicTableArea.innerHTML = "";
+      periodicMessage.textContent = "見つかる元素がありません。";
+      periodicMessage.className = "result-message bad";
+      return;
+    }
+
+    periodicMessage.textContent = `${sortedElements.length}個の元素を表示中`;
+    periodicMessage.className = "result-message good";
+    periodicTableArea.innerHTML = sortedElements.map((element) => `
+      <article class="periodic-cell">
+        <span>${element.number}番</span>
+        <strong>${element.symbol}</strong>
+        <em>${element.name}</em>
+      </article>
+    `).join("");
+  }
+
+  function filterPeriodicTable() {
+    const keyword = periodicSearch.value.trim().toLowerCase();
+    const filtered = elements.filter((element) => {
+      return String(element.number).includes(keyword)
+        || element.symbol.toLowerCase().includes(keyword)
+        || element.name.toLowerCase().includes(keyword);
+    });
+    renderPeriodicTable(filtered);
   }
 
   function startQuiz(config) {
@@ -887,6 +930,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (mode === "cards") {
         startCardMode();
       }
+      if (mode === "periodic") {
+        playSound("click");
+        showPeriodicScreen();
+      }
       if (mode === "exam") {
         startQuiz({
           mode: "exam",
@@ -982,6 +1029,11 @@ document.addEventListener("DOMContentLoaded", () => {
     showTopScreen();
   });
   cardSetupBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
+  periodicSearch.addEventListener("input", filterPeriodicTable);
+  periodicBackButton.addEventListener("click", () => {
     playSound("click");
     showTopScreen();
   });
