@@ -1164,6 +1164,22 @@ h1 {
   font-size: 0.6rem;
 }
 
+.periodic-cell.periodic-focus-target {
+  border-color: #ffbe3d;
+  box-shadow: 0 0 0 5px rgba(255, 190, 61, 0.36), 0 0 24px rgba(255, 190, 61, 0.58), 0 5px 0 #ffcb6b;
+  animation: periodicFocusPulse 0.7s ease-in-out 0s 4 alternate;
+}
+
+@keyframes periodicFocusPulse {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
 .kanji-note {
   display: inline-block;
   margin-top: 8px;
@@ -1862,6 +1878,32 @@ h1 {
   color: #c72e2e;
 }
 
+.periodic-jump-button {
+  margin-top: 10px;
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 2px solid rgba(69, 174, 227, 0.72);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff, #e9fff9);
+  color: #14536e;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #c5e8f0, 0 9px 14px rgba(43, 90, 126, 0.1);
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  touch-action: manipulation;
+}
+
+.periodic-jump-button:hover,
+.periodic-jump-button:focus-visible {
+  border-color: #20b486;
+  background: #effffc;
+  transform: translateY(2px);
+  outline: none;
+}
+
 .answer-button {
   background: #e45835;
 }
@@ -2089,23 +2131,22 @@ h1 {
   .today-stats {
     width: 100%;
     max-width: none;
-    gap: 8px;
-    padding: 10px 11px;
-    font-size: 0.82rem;
+    gap: 5px;
+    padding: 8px 9px;
+    font-size: 0.78rem;
     box-shadow: 0 4px 0 #c5e8f0, 0 8px 14px rgba(43, 90, 126, 0.08);
   }
 
   .today-stats::after {
-    width: 68px;
-    height: 32px;
-    right: 10px;
-    top: 8px;
-    opacity: 0.16;
-    background-size: 13px 11px;
+    display: none;
+  }
+
+  .today-stats-heading {
+    gap: 8px;
   }
 
   .today-stats-heading span {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .today-rate-display {
@@ -2113,15 +2154,15 @@ h1 {
   }
 
   .today-rate-display small {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
   }
 
   .today-rate-display strong {
-    font-size: 1.38rem;
+    font-size: 1.18rem;
   }
 
   .today-stats-meter {
-    height: 8px;
+    height: 5px;
   }
 
   .today-stats-grid {
@@ -2134,17 +2175,17 @@ h1 {
     align-items: baseline;
     justify-content: space-between;
     gap: 6px;
-    padding: 7px 8px;
+    padding: 5px 7px;
     text-align: left;
   }
 
   .today-stats-grid b {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     order: 2;
   }
 
   .today-stats-grid small {
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     line-height: 1.2;
   }
 
@@ -2206,7 +2247,6 @@ h1 {
     flex-direction: column;
     gap: 6px;
   }
-
   .choice-group-title strong {
     text-align: left;
     font-size: 1rem;
