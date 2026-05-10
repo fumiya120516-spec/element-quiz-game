@@ -71,6 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const screens = {
     mode: document.getElementById("modeScreen"),
     type: document.getElementById("typeScreen"),
+    finalSetup: document.getElementById("finalSetupScreen"),
+    examConfirm: document.getElementById("examConfirmScreen"),
+    settings: document.getElementById("settingsScreen"),
+    guide: document.getElementById("guideScreen"),
     review: document.getElementById("reviewScreen"),
     cardSetup: document.getElementById("cardSetupScreen"),
     periodic: document.getElementById("periodicScreen"),
@@ -94,15 +98,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextButton = document.getElementById("nextButton");
   const quizBackButton = document.getElementById("quizBackButton");
   const reviewButton = document.getElementById("reviewButton");
+  const retryMissedButton = document.getElementById("retryMissedButton");
   const reviewListButton = document.getElementById("reviewListButton");
   const resultBackButton = document.getElementById("resultBackButton");
   const resultTitle = document.getElementById("resultTitle");
   const finalScoreText = document.getElementById("finalScoreText");
   const finalComment = document.getElementById("finalComment");
   const missedListArea = document.getElementById("missedListArea");
+  const todayStats = document.getElementById("todayStats");
   const typeChoices = document.getElementById("typeChoices");
   const practiceStartButton = document.getElementById("practiceStartButton");
   const typeBackButton = document.getElementById("typeBackButton");
+  const finalSetupChoices = document.getElementById("finalSetupChoices");
+  const finalStartButton = document.getElementById("finalStartButton");
+  const finalSetupBackButton = document.getElementById("finalSetupBackButton");
+  const examConfirmPanel = document.getElementById("examConfirmPanel");
+  const examStartButton = document.getElementById("examStartButton");
+  const examConfirmBackButton = document.getElementById("examConfirmBackButton");
+  const settingsResetWeakButton = document.getElementById("settingsResetWeakButton");
+  const settingsResetDailyButton = document.getElementById("settingsResetDailyButton");
+  const settingsResetAllButton = document.getElementById("settingsResetAllButton");
+  const settingsMessage = document.getElementById("settingsMessage");
+  const settingsBackButton = document.getElementById("settingsBackButton");
+  const guideBackButton = document.getElementById("guideBackButton");
   const weakListArea = document.getElementById("weakListArea");
   const weakListMessage = document.getElementById("weakListMessage");
   const reviewAllButton = document.getElementById("reviewAllButton");
@@ -113,9 +131,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const cardStartButton = document.getElementById("cardStartButton");
   const cardSetupBackButton = document.getElementById("cardSetupBackButton");
   const periodicSearch = document.getElementById("periodicSearch");
+  const periodicListViewButton = document.getElementById("periodicListViewButton");
+  const periodicTableViewButton = document.getElementById("periodicTableViewButton");
   const periodicTableArea = document.getElementById("periodicTableArea");
   const periodicMessage = document.getElementById("periodicMessage");
+  const periodicActionPanel = document.getElementById("periodicActionPanel");
   const periodicBackButton = document.getElementById("periodicBackButton");
+  const quizMeta = document.getElementById("quizMeta");
+  const timerBox = document.getElementById("timerBox");
+  const timerText = document.getElementById("timerText");
+  const comboBox = document.getElementById("comboBox");
+  const comboText = document.getElementById("comboText");
   const bgmToggle = document.getElementById("bgmToggle");
   const sfxToggle = document.getElementById("sfxToggle");
   const cardFrontSelect = document.getElementById("cardFrontSelect");
@@ -130,8 +156,128 @@ document.addEventListener("DOMContentLoaded", () => {
   const storageKeys = {
     weak: "elementQuizWeakElements",
     bgm: "elementQuizBgmOn",
-    sfx: "elementQuizSfxOn"
+    sfx: "elementQuizSfxOn",
+    daily: "elementQuizDailyStats"
   };
+  const managedStorageKeys = Object.values(storageKeys);
+
+  const kanjiNotes = {
+    16: "「硫」の字に注意",
+    17: "「塩」の字に注意",
+    29: "金属名の漢字に注意",
+    30: "「亜」と「鉛」の組み合わせに注意",
+    35: "「臭」の字に注意",
+    47: "「銀」は金属の名前にも使う漢字",
+    78: "「しろがね」ではなく「はっきん」と読む",
+    82: "読みは「なまり」"
+  };
+
+  const periodicPositions = {
+    1: { period: 1, group: 1 },
+    2: { period: 1, group: 18 },
+    3: { period: 2, group: 1 },
+    4: { period: 2, group: 2 },
+    5: { period: 2, group: 13 },
+    6: { period: 2, group: 14 },
+    7: { period: 2, group: 15 },
+    8: { period: 2, group: 16 },
+    9: { period: 2, group: 17 },
+    10: { period: 2, group: 18 },
+    11: { period: 3, group: 1 },
+    12: { period: 3, group: 2 },
+    13: { period: 3, group: 13 },
+    14: { period: 3, group: 14 },
+    15: { period: 3, group: 15 },
+    16: { period: 3, group: 16 },
+    17: { period: 3, group: 17 },
+    18: { period: 3, group: 18 },
+    19: { period: 4, group: 1 },
+    20: { period: 4, group: 2 },
+    25: { period: 4, group: 7 },
+    26: { period: 4, group: 8 },
+    29: { period: 4, group: 11 },
+    30: { period: 4, group: 12 },
+    35: { period: 4, group: 17 },
+    47: { period: 5, group: 11 },
+    53: { period: 5, group: 17 },
+    78: { period: 6, group: 10 },
+    79: { period: 6, group: 11 },
+    82: { period: 6, group: 14 }
+  };
+
+  const fullPeriodicElements = [
+    { number: 1, symbol: "H", name: "水素", period: 1, group: 1 },
+    { number: 2, symbol: "He", name: "ヘリウム", period: 1, group: 18 },
+    { number: 3, symbol: "Li", name: "リチウム", period: 2, group: 1 },
+    { number: 4, symbol: "Be", name: "ベリリウム", period: 2, group: 2 },
+    { number: 5, symbol: "B", name: "ホウ素", period: 2, group: 13 },
+    { number: 6, symbol: "C", name: "炭素", period: 2, group: 14 },
+    { number: 7, symbol: "N", name: "窒素", period: 2, group: 15 },
+    { number: 8, symbol: "O", name: "酸素", period: 2, group: 16 },
+    { number: 9, symbol: "F", name: "フッ素", period: 2, group: 17 },
+    { number: 10, symbol: "Ne", name: "ネオン", period: 2, group: 18 },
+    { number: 11, symbol: "Na", name: "ナトリウム", period: 3, group: 1 },
+    { number: 12, symbol: "Mg", name: "マグネシウム", period: 3, group: 2 },
+    { number: 13, symbol: "Al", name: "アルミニウム", period: 3, group: 13 },
+    { number: 14, symbol: "Si", name: "ケイ素", period: 3, group: 14 },
+    { number: 15, symbol: "P", name: "リン", period: 3, group: 15 },
+    { number: 16, symbol: "S", name: "硫黄", period: 3, group: 16 },
+    { number: 17, symbol: "Cl", name: "塩素", period: 3, group: 17 },
+    { number: 18, symbol: "Ar", name: "アルゴン", period: 3, group: 18 },
+    { number: 19, symbol: "K", name: "カリウム", period: 4, group: 1 },
+    { number: 20, symbol: "Ca", name: "カルシウム", period: 4, group: 2 },
+    { number: 21, symbol: "Sc", name: "スカンジウム", period: 4, group: 3 },
+    { number: 22, symbol: "Ti", name: "チタン", period: 4, group: 4 },
+    { number: 23, symbol: "V", name: "バナジウム", period: 4, group: 5 },
+    { number: 24, symbol: "Cr", name: "クロム", period: 4, group: 6 },
+    { number: 25, symbol: "Mn", name: "マンガン", period: 4, group: 7 },
+    { number: 26, symbol: "Fe", name: "鉄", period: 4, group: 8 },
+    { number: 27, symbol: "Co", name: "コバルト", period: 4, group: 9 },
+    { number: 28, symbol: "Ni", name: "ニッケル", period: 4, group: 10 },
+    { number: 29, symbol: "Cu", name: "銅", period: 4, group: 11 },
+    { number: 30, symbol: "Zn", name: "亜鉛", period: 4, group: 12 },
+    { number: 31, symbol: "Ga", name: "ガリウム", period: 4, group: 13 },
+    { number: 32, symbol: "Ge", name: "ゲルマニウム", period: 4, group: 14 },
+    { number: 33, symbol: "As", name: "ヒ素", period: 4, group: 15 },
+    { number: 34, symbol: "Se", name: "セレン", period: 4, group: 16 },
+    { number: 35, symbol: "Br", name: "臭素", period: 4, group: 17 },
+    { number: 36, symbol: "Kr", name: "クリプトン", period: 4, group: 18 },
+    { number: 37, symbol: "Rb", name: "ルビジウム", period: 5, group: 1 },
+    { number: 38, symbol: "Sr", name: "ストロンチウム", period: 5, group: 2 },
+    { number: 39, symbol: "Y", name: "イットリウム", period: 5, group: 3 },
+    { number: 40, symbol: "Zr", name: "ジルコニウム", period: 5, group: 4 },
+    { number: 41, symbol: "Nb", name: "ニオブ", period: 5, group: 5 },
+    { number: 42, symbol: "Mo", name: "モリブデン", period: 5, group: 6 },
+    { number: 43, symbol: "Tc", name: "テクネチウム", period: 5, group: 7 },
+    { number: 44, symbol: "Ru", name: "ルテニウム", period: 5, group: 8 },
+    { number: 45, symbol: "Rh", name: "ロジウム", period: 5, group: 9 },
+    { number: 46, symbol: "Pd", name: "パラジウム", period: 5, group: 10 },
+    { number: 47, symbol: "Ag", name: "銀", period: 5, group: 11 },
+    { number: 48, symbol: "Cd", name: "カドミウム", period: 5, group: 12 },
+    { number: 49, symbol: "In", name: "インジウム", period: 5, group: 13 },
+    { number: 50, symbol: "Sn", name: "スズ", period: 5, group: 14 },
+    { number: 51, symbol: "Sb", name: "アンチモン", period: 5, group: 15 },
+    { number: 52, symbol: "Te", name: "テルル", period: 5, group: 16 },
+    { number: 53, symbol: "I", name: "ヨウ素", period: 5, group: 17 },
+    { number: 54, symbol: "Xe", name: "キセノン", period: 5, group: 18 },
+    { number: 55, symbol: "Cs", name: "セシウム", period: 6, group: 1 },
+    { number: 56, symbol: "Ba", name: "バリウム", period: 6, group: 2 },
+    { number: 72, symbol: "Hf", name: "ハフニウム", period: 6, group: 4 },
+    { number: 73, symbol: "Ta", name: "タンタル", period: 6, group: 5 },
+    { number: 74, symbol: "W", name: "タングステン", period: 6, group: 6 },
+    { number: 75, symbol: "Re", name: "レニウム", period: 6, group: 7 },
+    { number: 76, symbol: "Os", name: "オスミウム", period: 6, group: 8 },
+    { number: 77, symbol: "Ir", name: "イリジウム", period: 6, group: 9 },
+    { number: 78, symbol: "Pt", name: "白金", period: 6, group: 10 },
+    { number: 79, symbol: "Au", name: "金", period: 6, group: 11 },
+    { number: 80, symbol: "Hg", name: "水銀", period: 6, group: 12 },
+    { number: 81, symbol: "Tl", name: "タリウム", period: 6, group: 13 },
+    { number: 82, symbol: "Pb", name: "鉛", period: 6, group: 14 },
+    { number: 83, symbol: "Bi", name: "ビスマス", period: 6, group: 15 },
+    { number: 84, symbol: "Po", name: "ポロニウム", period: 6, group: 16 },
+    { number: 85, symbol: "At", name: "アスタチン", period: 6, group: 17 },
+    { number: 86, symbol: "Rn", name: "ラドン", period: 6, group: 18 }
+  ];
 
   const BGM_VOLUME = 0.15;
   const SFX_VOLUME = 0.45;
@@ -148,10 +294,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let sfxOn = localStorage.getItem(storageKeys.sfx) !== "false";
   let weakList = loadWeakList();
   let activeQuiz = null;
+  let timerId = null;
   let cardDeck = [];
   let cardIndex = 0;
   let cardRevealed = false;
   let selectedWeakNumbers = [];
+  let weakSortMode = "number";
+  let cardReturnTarget = "top";
+  let periodicSelectedElement = null;
+  let periodicViewMode = "list";
 
   function createAudio(src, volume, loop = false) {
     const audio = new Audio(src);
@@ -236,10 +387,110 @@ document.addEventListener("DOMContentLoaded", () => {
     return elements.find((element) => element.number === Number(number));
   }
 
+  function getTodayKey() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function loadDailyStats() {
+    const fallback = { date: getTodayKey(), answered: 0, correct: 0, plays: 0 };
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKeys.daily) || "null");
+      if (!saved || saved.date !== getTodayKey()) {
+        return fallback;
+      }
+      const answered = Math.max(0, Math.floor(Number(saved.answered) || 0));
+      const correct = Math.min(answered, Math.max(0, Math.floor(Number(saved.correct) || 0)));
+      const plays = Math.max(0, Math.floor(Number(saved.plays) || 0));
+      return {
+        date: saved.date,
+        answered,
+        correct,
+        plays
+      };
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function saveDailyStats(stats) {
+    localStorage.setItem(storageKeys.daily, JSON.stringify(stats));
+  }
+
+  function resetDailyStats() {
+    saveDailyStats({ date: getTodayKey(), answered: 0, correct: 0, plays: 0 });
+    renderTodayStats();
+  }
+
+  function addDailyResult(total, correct) {
+    const stats = loadDailyStats();
+    stats.answered += total;
+    stats.correct += correct;
+    stats.plays += 1;
+    saveDailyStats(stats);
+    renderTodayStats();
+  }
+
+  function renderTodayStats() {
+    const stats = loadDailyStats();
+    const rate = stats.answered === 0 ? 0 : Math.min(100, Math.round((stats.correct / stats.answered) * 100));
+    const rateLabel = stats.answered === 0 ? "まだ記録なし" : "今日の正答率";
+    todayStats.innerHTML = `
+      <div class="today-stats-heading">
+        <span>今日の学習</span>
+        <div class="today-rate-display">
+          <small>${rateLabel}</small>
+          <strong>${rate}%</strong>
+        </div>
+      </div>
+      <div class="today-stats-meter" aria-hidden="true">
+        <span style="width: ${rate}%;"></span>
+      </div>
+      <div class="today-stats-grid">
+        <span><b>${stats.answered}</b><small>解いた問題</small></span>
+        <span><b>${stats.correct}</b><small>正解</small></span>
+        <span><b>${rate}%</b><small>正答率</small></span>
+        <span><b>${stats.plays}</b><small>プレイ</small></span>
+      </div>
+    `;
+  }
+
   function loadWeakList() {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKeys.weak) || "[]");
-      return Array.isArray(saved) ? saved.map(Number).filter(Boolean) : [];
+      if (!Array.isArray(saved)) {
+        return [];
+      }
+
+      return saved.map((item) => {
+        if (typeof item === "number" || typeof item === "string") {
+          const element = getElementByNumber(item);
+          if (!element) {
+            return null;
+          }
+          return {
+            number: element.number,
+            mistakes: 1,
+            lastMistakeAt: "",
+            streak: 0
+          };
+        }
+
+        const element = getElementByNumber(item.number);
+        if (!element) {
+          return null;
+        }
+
+        return {
+          number: element.number,
+          mistakes: Number.isFinite(Number(item.mistakes)) ? Number(item.mistakes) : 1,
+          lastMistakeAt: item.lastMistakeAt || "",
+          streak: Number(item.streak) || 0
+        };
+      }).filter(Boolean);
     } catch (error) {
       return [];
     }
@@ -249,16 +500,74 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(storageKeys.weak, JSON.stringify(weakList));
   }
 
-  function addWeakElement(element) {
-    if (!weakList.includes(element.number)) {
-      weakList.push(element.number);
+  function getWeakRecord(element) {
+    return weakList.find((record) => record.number === element.number);
+  }
+
+  function addWeakElement(element, countMistake = true) {
+    const now = new Date().toISOString();
+    const record = getWeakRecord(element);
+
+    if (record) {
+      if (countMistake) {
+        record.mistakes += 1;
+        record.lastMistakeAt = now;
+        record.streak = 0;
+      }
       saveWeakList();
+      return record;
     }
+
+    const newRecord = {
+      number: element.number,
+      mistakes: countMistake ? 1 : 0,
+      lastMistakeAt: countMistake ? now : "",
+      streak: 0
+    };
+    weakList.push(newRecord);
+    saveWeakList();
+    return newRecord;
   }
 
   function removeWeakElement(element) {
-    weakList = weakList.filter((number) => number !== element.number);
+    weakList = weakList.filter((record) => record.number !== element.number);
     saveWeakList();
+  }
+
+  function markWeakCorrect(element) {
+    const record = getWeakRecord(element);
+    if (!record) {
+      return false;
+    }
+
+    record.streak += 1;
+    if (record.streak >= 3) {
+      removeWeakElement(element);
+      return true;
+    }
+
+    saveWeakList();
+    return false;
+  }
+
+  function formatDateLabel(isoText) {
+    if (!isoText) {
+      return "記録なし";
+    }
+    const date = new Date(isoText);
+    if (Number.isNaN(date.getTime())) {
+      return "記録なし";
+    }
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  }
+
+  function getKanjiNote(element) {
+    return kanjiNotes[element.number] || "";
+  }
+
+  function renderKanjiNote(element) {
+    const note = getKanjiNote(element);
+    return note ? `<small class="kanji-note">漢字メモ：${note}</small>` : "";
   }
 
   function makeOptionSet(element, key) {
@@ -297,23 +606,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return selectedElements.map((element) => makeQuestion(element, randomItem(typeSource)));
   }
 
-  function makeElementSetQuestions({ count, ordered = false, typeSource = questionTypes }) {
-    const orderedElements = [...elements].sort((a, b) => a.number - b.number);
-    const sourceElements = ordered
+  function makeElementSetQuestions({ count, ordered = false, typeSource = questionTypes, sourceElements = elements }) {
+    const orderedElements = [...sourceElements].sort((a, b) => a.number - b.number);
+    const selectedElements = ordered
       ? orderedElements.slice(0, count)
-      : (count === elements.length ? shuffle(elements) : shuffle(elements).slice(0, count));
-    const sortedElements = ordered ? sourceElements : sourceElements;
+      : (count >= sourceElements.length ? shuffle(sourceElements) : shuffle(sourceElements).slice(0, count));
 
-    return sortedElements.map((element) => makeQuestion(element, randomItem(typeSource)));
+    return selectedElements.map((element) => makeQuestion(element, randomItem(typeSource)));
   }
 
   function showOnly(screenName) {
+    stopTimer();
     Object.entries(screens).forEach(([name, screen]) => {
       screen.classList.toggle("hidden", name !== screenName);
     });
 
     const inQuiz = screenName === "quiz";
     const showStatus = inQuiz || screenName === "card";
+    todayStats.classList.toggle("hidden", screenName !== "mode");
     scoreBox.classList.toggle("hidden", !showStatus);
     progress.classList.toggle("hidden", !inQuiz && screenName !== "card");
   }
@@ -327,7 +637,10 @@ document.addEventListener("DOMContentLoaded", () => {
     missedListArea.innerHTML = "";
     quizBackButton.classList.remove("hidden");
     reviewListButton.classList.add("hidden");
+    periodicActionPanel.classList.add("hidden");
+    periodicActionPanel.innerHTML = "";
     updateSoundControls();
+    renderTodayStats();
   }
 
   function showPracticeScreen() {
@@ -336,16 +649,62 @@ document.addEventListener("DOMContentLoaded", () => {
     buildPracticeSettings();
   }
 
+  function showFinalSetupScreen() {
+    showOnly("finalSetup");
+    screenLead.textContent = "苦手リストを優先して、短時間で最後の確認をします。";
+    buildFinalSettings();
+  }
+
+  function showExamConfirmScreen() {
+    showOnly("examConfirm");
+    screenLead.textContent = "小テスト本番の内容を確認してからスタートします。";
+    examConfirmPanel.innerHTML = `
+      <div class="mission-grid">
+        <span>モード</span><strong>小テスト本番</strong>
+        <span>問題数</span><strong>30問</strong>
+        <span>出題順</span><strong>ランダム</strong>
+        <span>出題タイプ</span><strong>完全ランダム</strong>
+        <span>出題範囲</span><strong>小テスト範囲30問</strong>
+        <span>制限時間</span><strong>なし</strong>
+      </div>
+    `;
+  }
+
+  function showSettingsScreen() {
+    showOnly("settings");
+    screenLead.textContent = "保存データと音声設定を管理できます。";
+    settingsMessage.textContent = "";
+    settingsMessage.className = "result-message";
+  }
+
+  function showGuideScreen() {
+    showOnly("guide");
+    screenLead.textContent = "ゲームの使い方とおすすめ学習ルートを確認できます。";
+  }
+
   function showPeriodicScreen() {
     showOnly("periodic");
     screenLead.textContent = "小テスト範囲の30元素を、周期表風の研究データカードで確認できます。";
     periodicSearch.value = "";
     periodicMessage.textContent = "";
     periodicMessage.className = "result-message";
+    periodicActionPanel.classList.add("hidden");
+    periodicActionPanel.innerHTML = "";
+    periodicViewMode = "list";
+    updatePeriodicViewButtons();
     renderPeriodicTable(elements);
   }
 
   function renderPeriodicTable(sourceElements) {
+    if (periodicViewMode === "table") {
+      renderFullPeriodicTable(sourceElements);
+      return;
+    }
+
+    renderPeriodicList(sourceElements);
+  }
+
+  function renderPeriodicList(sourceElements) {
     const sortedElements = [...sourceElements].sort((a, b) => a.number - b.number);
     if (sortedElements.length === 0) {
       periodicTableArea.innerHTML = "";
@@ -354,25 +713,138 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    periodicMessage.textContent = `${sortedElements.length}個の元素を表示中`;
+    periodicMessage.textContent = `${sortedElements.length}個の元素を一覧表示中`;
     periodicMessage.className = "result-message good";
-    periodicTableArea.innerHTML = sortedElements.map((element) => `
-      <article class="periodic-cell">
+    periodicTableArea.innerHTML = `
+      <div class="periodic-list-grid">
+        ${sortedElements.map((element) => `
+      <button class="periodic-cell periodic-list-cell" type="button" data-number="${element.number}">
         <span>${element.number}番</span>
         <strong>${element.symbol}</strong>
         <em>${element.name}</em>
-      </article>
-    `).join("");
+        ${renderKanjiNote(element)}
+      </button>
+    `).join("")}
+      </div>
+    `;
+    bindPeriodicCells();
+  }
+
+  function renderFullPeriodicTable(sourceElements) {
+    const keywordNumbers = new Set(sourceElements.map((element) => element.number));
+    const quizNumbers = new Set(elements.map((element) => element.number));
+    const visibleElements = fullPeriodicElements.filter((element) => {
+      if (periodicSearch.value.trim() === "") {
+        return true;
+      }
+      return keywordNumbers.has(element.number);
+    });
+
+    if (visibleElements.length === 0) {
+      periodicTableArea.innerHTML = "";
+      periodicMessage.textContent = "見つかる元素がありません。";
+      periodicMessage.className = "result-message bad";
+      return;
+    }
+
+    periodicMessage.textContent = "参考用の周期表表示です。赤い枠が小テスト範囲です。";
+    periodicMessage.className = "result-message good";
+    periodicTableArea.innerHTML = `
+      <div class="periodic-grid">
+        ${Array.from({ length: 18 }, (_, index) => `<span class="periodic-group-label" style="grid-column:${index + 1};grid-row:1;">${index + 1}</span>`).join("")}
+        ${Array.from({ length: 6 }, (_, index) => `<span class="periodic-period-label" style="grid-column:1;grid-row:${index + 2};">${index + 1}</span>`).join("")}
+        ${visibleElements.map((element) => {
+          const inQuizRange = quizNumbers.has(element.number);
+          const canOpen = Boolean(getElementByNumber(element.number));
+          return `
+      <button class="periodic-cell periodic-table-cell${inQuizRange ? " in-range" : " out-range"}" type="button" data-number="${element.number}" style="grid-column:${element.group};grid-row:${element.period + 1};" ${canOpen ? "" : "disabled"}>
+        <span>${element.number}</span>
+        <strong>${element.symbol}</strong>
+        <em>${element.name}</em>
+      </button>
+    `;
+        }).join("")}
+      </div>
+    `;
+    bindPeriodicCells();
+  }
+
+  function bindPeriodicCells() {
+    periodicTableArea.querySelectorAll(".periodic-cell").forEach((cell) => {
+      cell.addEventListener("click", () => {
+        playSound("click");
+        const element = getElementByNumber(cell.dataset.number);
+        if (element) {
+          showPeriodicActions(element);
+        }
+      });
+    });
   }
 
   function filterPeriodicTable() {
     const keyword = periodicSearch.value.trim().toLowerCase();
-    const filtered = elements.filter((element) => {
+    const source = periodicViewMode === "table" ? fullPeriodicElements : elements;
+    const filtered = source.filter((element) => {
       return String(element.number).includes(keyword)
         || element.symbol.toLowerCase().includes(keyword)
         || element.name.toLowerCase().includes(keyword);
     });
     renderPeriodicTable(filtered);
+  }
+
+  function updatePeriodicViewButtons() {
+    periodicListViewButton.classList.toggle("selected", periodicViewMode === "list");
+    periodicTableViewButton.classList.toggle("selected", periodicViewMode === "table");
+  }
+
+  function showPeriodicActions(element) {
+    periodicSelectedElement = element;
+    periodicActionPanel.classList.remove("hidden");
+    periodicActionPanel.innerHTML = `
+      <div class="periodic-action-card">
+        <p><strong>${element.number}番 ${element.name} ${element.symbol}</strong></p>
+        ${renderKanjiNote(element)}
+        <div class="periodic-action-buttons">
+          <button id="periodicCardButton" class="main-button" type="button">この元素を暗記カードで見る</button>
+          <button id="periodicPracticeButton" class="review-button" type="button">この元素だけ練習</button>
+          <button id="periodicWeakButton" class="sub-button" type="button">苦手リストに追加</button>
+          <button id="periodicCloseButton" class="sub-button" type="button">閉じる</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("periodicCardButton").addEventListener("click", () => {
+      playSound("click");
+      cardReturnTarget = "periodic";
+      cardDeck = [element];
+      cardIndex = 0;
+      showOnly("card");
+      screenLead.textContent = `${element.name}だけを暗記カードで確認します。`;
+      cardBackButton.textContent = "周期表に戻る";
+      showCard();
+    });
+
+    document.getElementById("periodicPracticeButton").addEventListener("click", () => {
+      startQuiz({
+        mode: "periodic",
+        title: "元素別練習",
+        questions: [makeQuestion(element, randomItem(questionTypes))],
+        returnToPeriodic: true
+      });
+    });
+
+    document.getElementById("periodicWeakButton").addEventListener("click", () => {
+      playSound("click");
+      addWeakElement(element, false);
+      periodicMessage.textContent = `${element.name}を苦手リストに追加しました。`;
+      periodicMessage.className = "result-message good";
+    });
+
+    document.getElementById("periodicCloseButton").addEventListener("click", () => {
+      playSound("click");
+      periodicActionPanel.classList.add("hidden");
+      periodicActionPanel.innerHTML = "";
+    });
   }
 
   function startQuiz(config) {
@@ -386,6 +858,11 @@ document.addEventListener("DOMContentLoaded", () => {
       score: 0,
       missed: [],
       answered: false,
+      combo: 0,
+      maxCombo: 0,
+      graduated: [],
+      timerLimit: config.timerLimit || 0,
+      returnToPeriodic: Boolean(config.returnToPeriodic),
       showScoreDuringQuiz: config.showScoreDuringQuiz !== false,
       saveMistakes: config.saveMistakes !== false,
       removeWeakOnCorrect: Boolean(config.removeWeakOnCorrect)
@@ -404,6 +881,10 @@ document.addEventListener("DOMContentLoaded", () => {
     questionText.textContent = question.prompt;
     resultMessage.textContent = "";
     resultMessage.className = "result-message";
+    quizMeta.classList.remove("hidden");
+    comboBox.classList.remove("hidden");
+    comboText.textContent = activeQuiz.combo;
+    setupTimerForQuestion();
     choices.innerHTML = "";
     answerButton.disabled = false;
     quizBackButton.classList.remove("hidden");
@@ -443,6 +924,61 @@ document.addEventListener("DOMContentLoaded", () => {
     updateQuizStatus();
   }
 
+  function setupTimerForQuestion() {
+    stopTimer();
+    if (!activeQuiz.timerLimit) {
+      timerBox.classList.add("hidden");
+      timerBox.classList.remove("timer-warning");
+      return;
+    }
+
+    activeQuiz.timeLeft = activeQuiz.timerLimit;
+    timerText.textContent = activeQuiz.timeLeft;
+    timerBox.classList.remove("hidden", "timer-warning");
+    timerId = window.setInterval(() => {
+      activeQuiz.timeLeft -= 1;
+      timerText.textContent = activeQuiz.timeLeft;
+      timerBox.classList.toggle("timer-warning", activeQuiz.timeLeft <= 5);
+      if (activeQuiz.timeLeft <= 0) {
+        handleTimeUp();
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerId) {
+      window.clearInterval(timerId);
+      timerId = null;
+    }
+  }
+
+  function handleTimeUp() {
+    if (!activeQuiz || activeQuiz.answered) {
+      return;
+    }
+
+    stopTimer();
+    const question = activeQuiz.questions[activeQuiz.index];
+    activeQuiz.answered = true;
+    answerButton.disabled = true;
+    question.groups.forEach((group) => {
+      question.userAnswers[group.key] = question.selected[group.key] || "時間切れ";
+    });
+    activeQuiz.combo = 0;
+    comboText.textContent = activeQuiz.combo;
+    playSound("wrong");
+    resultMessage.textContent = `時間切れです。正解は ${formatCorrectAnswer(question)} です。`;
+    resultMessage.className = "result-message bad";
+    activeQuiz.missed.push(question);
+    if (activeQuiz.saveMistakes) {
+      addWeakElement(question.element);
+    }
+    markAnsweredChoices(question);
+    activeQuiz.index++;
+    nextButton.disabled = false;
+    updateQuizStatus();
+  }
+
   function selectOption(question, key, option, selectedButton, optionGrid) {
     if (activeQuiz.answered) {
       return;
@@ -477,6 +1013,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     playSound("click");
+    stopTimer();
     activeQuiz.answered = true;
     answerButton.disabled = true;
 
@@ -489,13 +1026,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (correct) {
       playSound("correct");
       activeQuiz.score++;
-      resultMessage.textContent = "実験成功！2つとも正解です。";
+      activeQuiz.combo++;
+      activeQuiz.maxCombo = Math.max(activeQuiz.maxCombo, activeQuiz.combo);
+      comboText.textContent = activeQuiz.combo;
+      const comboMessage = getComboMessage(activeQuiz.combo);
+      resultMessage.textContent = comboMessage
+        ? `実験成功！2つとも正解です。${comboMessage}`
+        : "実験成功！2つとも正解です。";
       resultMessage.classList.add("good");
       if (activeQuiz.removeWeakOnCorrect) {
-        removeWeakElement(question.element);
+        const graduated = markWeakCorrect(question.element);
+        if (graduated) {
+          activeQuiz.graduated.push(question.element);
+          resultMessage.textContent += ` ${question.element.name}を苦手リストから卒業しました！`;
+        }
       }
     } else {
       playSound("wrong");
+      activeQuiz.combo = 0;
+      comboText.textContent = activeQuiz.combo;
       resultMessage.textContent = activeQuiz.mode === "exam"
         ? "記録しました。結果画面で確認できます。"
         : `再実験！正解は ${formatCorrectAnswer(question)} です。`;
@@ -510,6 +1059,16 @@ document.addEventListener("DOMContentLoaded", () => {
     activeQuiz.index++;
     nextButton.disabled = false;
     updateQuizStatus();
+  }
+
+  function getComboMessage(combo) {
+    if (combo > 0 && combo % 10 === 0) {
+      return `${combo}連続正解！元素記号クイズ上級者に近づいています！`;
+    }
+    if (combo > 0 && combo % 5 === 0) {
+      return `${combo}連続正解！`;
+    }
+    return "";
   }
 
   function markAnsweredChoices(question) {
@@ -539,21 +1098,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showResult() {
     playSound("result");
+    stopTimer();
     showOnly("result");
     const total = activeQuiz.questions.length;
     const percent = Math.round((activeQuiz.score / total) * 100);
+    addDailyResult(total, activeQuiz.score);
     resultTitle.textContent = activeQuiz.mode === "exam" ? "小テスト結果レポート" : "研究結果レポート";
     finalScoreText.textContent = `${activeQuiz.score} / ${total} 点`;
-    finalComment.textContent = getScoreComment(activeQuiz.score, total, percent);
+    finalComment.textContent = `${getScoreComment(activeQuiz.score, total, percent)} 最高コンボ：${activeQuiz.maxCombo}連続`;
     renderMissedList(activeQuiz.missed, total, percent);
     reviewButton.classList.toggle("hidden", weakList.length === 0);
+    retryMissedButton.classList.toggle("hidden", activeQuiz.missed.length === 0);
     reviewListButton.classList.toggle("hidden", activeQuiz.mode !== "review");
+    if (activeQuiz.returnToPeriodic) {
+      reviewListButton.classList.remove("hidden");
+      reviewListButton.textContent = "周期表に戻る";
+    } else {
+      reviewListButton.textContent = "苦手リストに戻る";
+    }
     progressBar.style.width = "100%";
   }
 
   function getScoreComment(score, total, percent) {
     if (score === total) {
-      return `正答率 ${percent}%：元素マスター！`;
+      return `正答率 ${percent}%：元素記号クイズ満点！`;
     }
     if (percent >= 70) {
       return `正答率 ${percent}%：かなりいい感じ！`;
@@ -565,12 +1133,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderMissedList(missed, total, percent) {
+    const analysis = analyzeMistakes(missed);
+    const summaryHtml = renderScoreSummary(total, percent, analysis);
+    const analysisHtml = renderMistakeAnalysis(analysis);
+    const graduatedHtml = activeQuiz.graduated && activeQuiz.graduated.length > 0
+      ? `<div class="analysis-panel graduate-panel"><h3>苦手卒業</h3><p>${activeQuiz.graduated.map((element) => `${element.name}（${element.symbol}）`).join("、")} を苦手リストから卒業しました！</p></div>`
+      : "";
+
     if (missed.length === 0) {
-      missedListArea.innerHTML = `<div class="missed-list"><h3>間違えた問題一覧</h3><p>間違えた問題はありません。すばらしい実験結果です。</p></div>`;
+      missedListArea.innerHTML = `
+        ${summaryHtml}
+        ${analysisHtml}
+        ${graduatedHtml}
+        <div class="missed-list"><h3>間違えた問題一覧</h3><p>間違えた問題はありません。すばらしい実験結果です。</p></div>
+      `;
       return;
     }
 
     const items = missed.map((question) => {
+      const mistakes = getMistakeLabels(question);
       const correctRows = question.groups
         .map((group) => `<em>${group.label}：${group.correct}</em>`)
         .join("");
@@ -582,6 +1163,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <li>
           <span>${question.type.label}</span>
           <strong>問題：${question.promptValue}</strong>
+          ${renderKanjiNote(question.element)}
+          <div class="mistake-tags">${mistakes.map((label) => `<b>${label}</b>`).join("")}</div>
           <div class="answer-report">
             <b>正解</b>
             ${correctRows}
@@ -595,10 +1178,93 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join("");
 
     missedListArea.innerHTML = `
+      ${summaryHtml}
+      ${analysisHtml}
+      ${graduatedHtml}
       <div class="missed-list">
         <h3>間違えた問題一覧</h3>
         <p>${total}問中 ${missed.length}問の元素を苦手リストに保存しました。正答率は ${percent}% です。</p>
         <ul>${items}</ul>
+      </div>
+    `;
+  }
+
+  function renderScoreSummary(total, percent, analysis) {
+    const tendency = getTendencyText(analysis);
+    const advice = getAdviceText(analysis);
+    return `
+      <div class="score-summary-card">
+        <h3>成績まとめ</h3>
+        <div class="score-summary-grid">
+          <span>${total}問中${activeQuiz.score}問正解</span>
+          <span>正答率：${percent}%</span>
+          <span>最大コンボ：${activeQuiz.maxCombo}</span>
+          <span>苦手傾向：${tendency}</span>
+        </div>
+        <p>おすすめ：${advice}</p>
+      </div>
+    `;
+  }
+
+  function getTendencyText(counts) {
+    const maxCount = Math.max(counts.number, counts.name, counts.symbol);
+    if (maxCount === 0) {
+      return "ミスなし";
+    }
+    if (counts.number === maxCount) {
+      return "元素番号ミスが多め";
+    }
+    if (counts.name === maxCount) {
+      return "元素名ミスが多め";
+    }
+    return "元素記号ミスが多め";
+  }
+
+  function getAdviceText(counts) {
+    const maxCount = Math.max(counts.number, counts.name, counts.symbol);
+    if (maxCount === 0) {
+      return "かなり安定しています。小テスト本番モードで仕上げましょう";
+    }
+    if (counts.number === maxCount) {
+      return "番号から答える練習や、番号順チェックをもう一度やろう";
+    }
+    if (counts.name === maxCount) {
+      return "元素名を意識して暗記カードで確認しよう";
+    }
+    return "元素記号から答える練習をもう一度やろう";
+  }
+
+  function getMistakeLabels(question) {
+    return question.groups
+      .filter((group) => question.userAnswers[group.key] !== group.correct)
+      .map((group) => `${group.label}ミス`);
+  }
+
+  function analyzeMistakes(missed) {
+    const counts = { number: 0, name: 0, symbol: 0 };
+    missed.forEach((question) => {
+      question.groups.forEach((group) => {
+        if (question.userAnswers[group.key] !== group.correct) {
+          counts[group.key]++;
+        }
+      });
+    });
+    return counts;
+  }
+
+  function renderMistakeAnalysis(counts) {
+    const maxCount = Math.max(counts.number, counts.name, counts.symbol);
+    const advice = getAdviceText(counts);
+
+    return `
+      <div class="analysis-panel">
+        <h3>今回の苦手タイプ</h3>
+        <div class="analysis-grid">
+          <span>元素番号ミス：<strong>${counts.number}回</strong></span>
+          <span>元素名ミス：<strong>${counts.name}回</strong></span>
+          <span>元素記号ミス：<strong>${counts.symbol}回</strong></span>
+        </div>
+        <p>${advice}</p>
       </div>
     `;
   }
@@ -629,9 +1295,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderWeakList() {
-    const weakElements = weakList.map(getElementByNumber).filter(Boolean).sort((a, b) => a.number - b.number);
+    const weakRecords = getSortedWeakRecords();
 
-    if (weakElements.length === 0) {
+    if (weakRecords.length === 0) {
       weakListArea.innerHTML = `
         <div class="weak-empty">
           <strong>苦手な元素はまだありません</strong><br>
@@ -649,15 +1315,36 @@ document.addEventListener("DOMContentLoaded", () => {
     reviewSelectedButton.disabled = false;
     weakResetButton.disabled = false;
     weakResetButton.classList.remove("hidden");
-    const cards = weakElements.map((element) => `
+    const cards = weakRecords.map((record) => {
+      const element = getElementByNumber(record.number);
+      const remaining = Math.max(0, 3 - record.streak);
+      return `
       <button class="weak-card" type="button" data-number="${element.number}">
-        <span>${element.number}番</span>
-        <strong>${element.name}</strong>
-        <em>${element.symbol}</em>
+        <span>${element.number}番 ${element.name}</span>
+        <strong>${element.symbol}</strong>
+        <em>ミス回数：${record.mistakes}回</em>
+        <small>卒業まで：あと${remaining}回連続正解</small>
+        <small>最後：${formatDateLabel(record.lastMistakeAt)}</small>
+        ${renderKanjiNote(element)}
       </button>
-    `).join("");
+    `;
+    }).join("");
 
-    weakListArea.innerHTML = `<div class="weak-card-grid">${cards}</div>`;
+    weakListArea.innerHTML = `
+      <label class="weak-sort-control">
+        <span>並び替え</span>
+        <select id="weakSortSelect">
+          <option value="number"${weakSortMode === "number" ? " selected" : ""}>元素番号順</option>
+          <option value="mistakes"${weakSortMode === "mistakes" ? " selected" : ""}>ミス回数が多い順</option>
+          <option value="recent"${weakSortMode === "recent" ? " selected" : ""}>最近間違えた順</option>
+        </select>
+      </label>
+      <div class="weak-card-grid">${cards}</div>
+    `;
+    document.getElementById("weakSortSelect").addEventListener("change", (event) => {
+      weakSortMode = event.target.value;
+      renderWeakList();
+    });
     weakListArea.querySelectorAll(".weak-card").forEach((card) => {
       card.addEventListener("click", () => {
         playSound("click");
@@ -675,12 +1362,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getSortedWeakRecords() {
+    const records = weakList.filter((record) => getElementByNumber(record.number));
+    if (weakSortMode === "mistakes") {
+      return [...records].sort((a, b) => b.mistakes - a.mistakes || a.number - b.number);
+    }
+    if (weakSortMode === "recent") {
+      return [...records].sort((a, b) => {
+        const aTime = a.lastMistakeAt ? new Date(a.lastMistakeAt).getTime() : 0;
+        const bTime = b.lastMistakeAt ? new Date(b.lastMistakeAt).getTime() : 0;
+        return bTime - aTime || a.number - b.number;
+      });
+    }
+    return [...records].sort((a, b) => a.number - b.number);
+  }
+
   function buildPracticeSettings() {
     typeChoices.innerHTML = "";
     const practiceSettings = {
       type: "random",
       count: 10,
-      order: "random"
+      order: "random",
+      timer: 0,
+      range: "all"
     };
 
     const typeOptions = [
@@ -700,6 +1404,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const orderOptions = [
       { id: "random", label: "ランダム" },
       { id: "ordered", label: "元素番号順" }
+    ];
+
+    const timerOptions = [
+      { id: 0, label: "制限時間なし" },
+      { id: 15, label: "1問15秒" },
+      { id: 10, label: "1問10秒" }
+    ];
+
+    const rangeOptions = [
+      { id: "all", label: "全範囲" },
+      { id: "basic", label: "基本範囲 1〜18" },
+      { id: "extra", label: "追加範囲 19以降" }
     ];
 
     const typeSection = document.createElement("section");
@@ -773,24 +1489,175 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     orderSection.appendChild(orderGrid);
+
+    const rangeSection = document.createElement("section");
+    rangeSection.className = "type-section";
+    rangeSection.innerHTML = "<h3>4. 出題範囲を選ぶ</h3>";
+
+    const rangeGrid = document.createElement("div");
+    rangeGrid.className = "type-option-grid";
+
+    rangeOptions.forEach((rangeOption) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = rangeOption.label;
+      button.classList.toggle("selected", rangeOption.id === practiceSettings.range);
+      button.addEventListener("click", () => {
+        practiceSettings.range = rangeOption.id;
+        screenLead.textContent = "出題範囲を選びました。選んだ範囲だけで練習できます。";
+        rangeGrid.querySelectorAll(".type-button").forEach((rangeButton) => rangeButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      rangeGrid.appendChild(button);
+    });
+
+    rangeSection.appendChild(rangeGrid);
+
+    const timerSection = document.createElement("section");
+    timerSection.className = "type-section";
+    timerSection.innerHTML = "<h3>5. 制限時間を選ぶ</h3>";
+
+    const timerGrid = document.createElement("div");
+    timerGrid.className = "count-option-grid";
+
+    timerOptions.forEach((timerOption) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = timerOption.label;
+      button.classList.toggle("selected", timerOption.id === practiceSettings.timer);
+      button.addEventListener("click", () => {
+        practiceSettings.timer = timerOption.id;
+        screenLead.textContent = "制限時間を選びました。時間切れは不正解になります。";
+        timerGrid.querySelectorAll(".type-button").forEach((timerButton) => timerButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      timerGrid.appendChild(button);
+    });
+
+    timerSection.appendChild(timerGrid);
     typeChoices.appendChild(typeSection);
     typeChoices.appendChild(countSection);
     typeChoices.appendChild(orderSection);
+    typeChoices.appendChild(rangeSection);
+    typeChoices.appendChild(timerSection);
 
     practiceStartButton.onclick = () => {
       const selectedType = typeOptions.find((type) => type.id === practiceSettings.type);
       const typeSource = selectedType.random ? questionTypes : [selectedType];
+      const sourceElements = getRangeElements(practiceSettings.range);
+      const actualCount = practiceSettings.count === 30
+        ? sourceElements.length
+        : Math.min(practiceSettings.count, sourceElements.length);
       const questions = makeElementSetQuestions({
-        count: practiceSettings.count,
+        count: actualCount,
         ordered: practiceSettings.order === "ordered",
-        typeSource
+        typeSource,
+        sourceElements
       });
       startQuiz({
         mode: "practice",
         title: "練習モード",
-        questions
+        questions,
+        timerLimit: practiceSettings.timer
       });
     };
+  }
+
+  function getRangeElements(rangeId) {
+    if (rangeId === "basic") {
+      return elements.filter((element) => element.number <= 18);
+    }
+    if (rangeId === "extra") {
+      return elements.filter((element) => element.number >= 19);
+    }
+    return elements;
+  }
+
+  function buildFinalSettings() {
+    finalSetupChoices.innerHTML = "";
+    const finalSettings = {
+      count: 10,
+      timer: 0
+    };
+
+    const countSection = document.createElement("section");
+    countSection.className = "type-section";
+    countSection.innerHTML = "<h3>1. 問題数を選ぶ</h3>";
+    const countGrid = document.createElement("div");
+    countGrid.className = "count-option-grid";
+    [
+      { id: 10, label: "10問" },
+      { id: 15, label: "15問" }
+    ].forEach((option) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = option.label;
+      button.classList.toggle("selected", option.id === finalSettings.count);
+      button.addEventListener("click", () => {
+        finalSettings.count = option.id;
+        countGrid.querySelectorAll(".type-button").forEach((countButton) => countButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      countGrid.appendChild(button);
+    });
+    countSection.appendChild(countGrid);
+
+    const timerSection = document.createElement("section");
+    timerSection.className = "type-section";
+    timerSection.innerHTML = "<h3>2. 制限時間を選ぶ</h3>";
+    const timerGrid = document.createElement("div");
+    timerGrid.className = "count-option-grid";
+    [
+      { id: 0, label: "制限時間なし" },
+      { id: 15, label: "1問15秒" },
+      { id: 10, label: "1問10秒" }
+    ].forEach((option) => {
+      const button = document.createElement("button");
+      button.className = "type-button";
+      button.type = "button";
+      button.textContent = option.label;
+      button.classList.toggle("selected", option.id === finalSettings.timer);
+      button.addEventListener("click", () => {
+        finalSettings.timer = option.id;
+        timerGrid.querySelectorAll(".type-button").forEach((timerButton) => timerButton.classList.remove("selected"));
+        button.classList.add("selected");
+      });
+      timerGrid.appendChild(button);
+    });
+    timerSection.appendChild(timerGrid);
+
+    finalSetupChoices.appendChild(countSection);
+    finalSetupChoices.appendChild(timerSection);
+
+    finalStartButton.onclick = () => {
+      startFinalQuiz(finalSettings);
+    };
+  }
+
+  function startFinalQuiz(settings) {
+    const weakElements = getSortedWeakRecords().map((record) => getElementByNumber(record.number)).filter(Boolean);
+    const selected = [];
+    weakElements.forEach((element) => {
+      if (selected.length < settings.count && !selected.some((item) => item.number === element.number)) {
+        selected.push(element);
+      }
+    });
+
+    shuffle(elements).forEach((element) => {
+      if (selected.length < settings.count && !selected.some((item) => item.number === element.number)) {
+        selected.push(element);
+      }
+    });
+
+    startQuiz({
+      mode: "final",
+      title: "小テスト直前",
+      questions: selected.map((element) => makeQuestion(element, randomItem(questionTypes))),
+      timerLimit: settings.timer
+    });
   }
 
   function startCardMode() {
@@ -844,6 +1711,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startCardDeck(order) {
     playSound("click");
+    cardReturnTarget = "top";
+    cardBackButton.textContent = "トップへ戻る";
     cardDeck = order === "ordered"
       ? [...elements].sort((a, b) => a.number - b.number)
       : shuffle(elements);
@@ -896,6 +1765,10 @@ document.addEventListener("DOMContentLoaded", () => {
     flashCard.classList.add("revealed");
     cardHint.textContent = "答え";
     cardAnswer.textContent = getCardAnswer(element, cardFrontSelect.value);
+    const note = getKanjiNote(element);
+    if (note) {
+      cardAnswer.textContent += ` / 漢字メモ：${note}`;
+    }
     cardRevealButton.disabled = true;
   }
 
@@ -911,7 +1784,7 @@ document.addEventListener("DOMContentLoaded", () => {
     flashCard.classList.add("revealed");
     cardHint.textContent = "暗記カード終了";
     cardFrontText.textContent = "完了";
-    cardAnswer.textContent = "トップへ戻るか、もう一度暗記カードを選んで復習しよう。";
+    cardAnswer.textContent = `${cardDeck.length}枚確認完了。まちがえた数は記録しない暗記モードです。`;
     cardRevealButton.disabled = true;
     cardNextButton.disabled = true;
   }
@@ -924,6 +1797,11 @@ document.addEventListener("DOMContentLoaded", () => {
         startBgm();
         showPracticeScreen();
       }
+      if (mode === "final") {
+        playSound("click");
+        startBgm();
+        showFinalSetupScreen();
+      }
       if (mode === "review") {
         startReviewMode();
       }
@@ -934,15 +1812,34 @@ document.addEventListener("DOMContentLoaded", () => {
         playSound("click");
         showPeriodicScreen();
       }
+      if (mode === "settings") {
+        playSound("click");
+        showSettingsScreen();
+      }
+      if (mode === "guide") {
+        playSound("click");
+        showGuideScreen();
+      }
       if (mode === "exam") {
-        startQuiz({
-          mode: "exam",
-          title: "小テスト本番",
-          questions: makeElementSetQuestions({ count: elements.length }),
-          showScoreDuringQuiz: false
-        });
+        playSound("click");
+        startBgm();
+        showExamConfirmScreen();
       }
     });
+  });
+
+  examStartButton.addEventListener("click", () => {
+    startQuiz({
+      mode: "exam",
+      title: "小テスト本番",
+      questions: makeElementSetQuestions({ count: elements.length }),
+      showScoreDuringQuiz: false
+    });
+  });
+
+  examConfirmBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
   });
 
   answerButton.addEventListener("click", answerQuestion);
@@ -974,7 +1871,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   reviewAllButton.addEventListener("click", () => {
     playSound("click");
-    const weakElements = weakList.map(getElementByNumber).filter(Boolean);
+    const weakElements = weakList.map((record) => getElementByNumber(record.number)).filter(Boolean);
     if (weakElements.length === 0) {
       weakListMessage.textContent = "苦手な元素はまだありません。";
       weakListMessage.className = "result-message bad";
@@ -995,8 +1892,27 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   reviewButton.addEventListener("click", startReviewMode);
+  retryMissedButton.addEventListener("click", () => {
+    playSound("click");
+    if (!activeQuiz || activeQuiz.missed.length === 0) {
+      return;
+    }
+
+    const retryQuestions = activeQuiz.missed.map((question) => makeQuestion(question.element, question.type));
+    startQuiz({
+      mode: "retry",
+      title: "間違えた問題だけもう一度",
+      questions: retryQuestions,
+      saveMistakes: true,
+      removeWeakOnCorrect: activeQuiz.mode === "review"
+    });
+  });
   reviewListButton.addEventListener("click", () => {
     playSound("click");
+    if (activeQuiz && activeQuiz.returnToPeriodic) {
+      showPeriodicScreen();
+      return;
+    }
     showReviewListScreen();
   });
   reviewListBackButton.addEventListener("click", () => {
@@ -1021,16 +1937,90 @@ document.addEventListener("DOMContentLoaded", () => {
     playSound("click");
     showTopScreen();
   });
+  finalSetupBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
+  settingsResetWeakButton.addEventListener("click", () => {
+    playSound("click");
+    const confirmed = window.confirm("苦手リストをすべて削除しますか？この操作は元に戻せません。");
+    if (!confirmed) {
+      return;
+    }
+    weakList = [];
+    selectedWeakNumbers = [];
+    saveWeakList();
+    settingsMessage.textContent = "苦手リストをリセットしました。";
+    settingsMessage.className = "result-message good";
+  });
+  settingsResetDailyButton.addEventListener("click", () => {
+    playSound("click");
+    const confirmed = window.confirm("今日の学習記録をリセットしますか？");
+    if (!confirmed) {
+      return;
+    }
+    resetDailyStats();
+    settingsMessage.textContent = "今日の学習記録をリセットしました。";
+    settingsMessage.className = "result-message good";
+  });
+  settingsResetAllButton.addEventListener("click", () => {
+    playSound("click");
+    const confirmed = window.confirm("すべての学習データと設定を削除します。この操作は元に戻せません。本当にリセットしますか？");
+    if (!confirmed) {
+      return;
+    }
+    managedStorageKeys.forEach((key) => localStorage.removeItem(key));
+    weakList = [];
+    selectedWeakNumbers = [];
+    bgmOn = false;
+    sfxOn = true;
+    stopBgm();
+    updateSoundControls();
+    settingsMessage.textContent = "すべてのデータをリセットしました。";
+    settingsMessage.className = "result-message good";
+  });
+  settingsBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
+  guideBackButton.addEventListener("click", () => {
+    playSound("click");
+    showTopScreen();
+  });
   flashCard.addEventListener("click", revealCard);
   cardRevealButton.addEventListener("click", revealCard);
   cardNextButton.addEventListener("click", nextCard);
   cardBackButton.addEventListener("click", () => {
     playSound("click");
+    if (cardReturnTarget === "periodic") {
+      cardReturnTarget = "top";
+      cardBackButton.textContent = "トップへ戻る";
+      showPeriodicScreen();
+      return;
+    }
     showTopScreen();
   });
   cardSetupBackButton.addEventListener("click", () => {
     playSound("click");
     showTopScreen();
+  });
+  periodicListViewButton.addEventListener("click", () => {
+    playSound("click");
+    periodicViewMode = "list";
+    periodicSearch.value = "";
+    periodicActionPanel.classList.add("hidden");
+    periodicActionPanel.innerHTML = "";
+    updatePeriodicViewButtons();
+    renderPeriodicTable(elements);
+  });
+  periodicTableViewButton.addEventListener("click", () => {
+    playSound("click");
+    periodicViewMode = "table";
+    periodicSearch.value = "";
+    periodicActionPanel.classList.add("hidden");
+    periodicActionPanel.innerHTML = "";
+    updatePeriodicViewButtons();
+    renderPeriodicTable(fullPeriodicElements);
   });
   periodicSearch.addEventListener("input", filterPeriodicTable);
   periodicBackButton.addEventListener("click", () => {
