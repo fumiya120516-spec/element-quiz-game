@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>元素記号学習ゲーム</title>
+  <title>元素記号クイズ</title>
   <link rel="icon" type="image/png" sizes="512x512" href="./icon.png">
   <link rel="apple-touch-icon" sizes="512x512" href="./icon.png">
   <link rel="manifest" href="./manifest.json">
@@ -28,15 +28,8 @@
   <main class="game">
     <section class="quiz-panel" aria-live="polite">
       <div class="top-row">
-        <div class="title-area">
-          <p class="label">ポップな理科実験室</p>
-          <div class="title-line">
-            <span class="lab-icon flask" aria-hidden="true"></span>
-            <h1>元素マスター</h1>
-            <span class="lab-icon atom-mark" aria-hidden="true"></span>
-          </div>
-          <p id="screenLead" class="screen-lead">小テスト前に、元素番号・元素名・元素記号を楽しく確認しよう。</p>
-        </div>
+        <div id="todayStats" class="today-stats" aria-label="今日の学習記録"></div>
+        <p id="screenLead" class="screen-lead screen-lead-hidden">練習、本番、復習、暗記を選んで、小テスト対策を始めよう。</p>
 
         <div id="scoreBox" class="score-box hidden">
           <span id="questionCount">1 / 10</span>
@@ -47,18 +40,27 @@
       <section id="modeScreen" class="mode-screen">
         <div class="mode-grid">
           <button class="mode-button featured-mode" type="button" data-mode="practice">
+            <span class="mode-icon icon-practice" aria-hidden="true"></span>
             <span>練習モード</span>
             <small>条件を選んで自由に練習</small>
           </button>
           <button class="mode-button" type="button" data-mode="exam">
+            <span class="mode-icon icon-exam" aria-hidden="true"></span>
             <span>小テスト本番</span>
             <small>30問ランダムで本番練習</small>
           </button>
+          <button class="mode-button" type="button" data-mode="final">
+            <span class="mode-icon icon-final" aria-hidden="true"></span>
+            <span>小テスト直前</span>
+            <small>苦手を優先して最終確認</small>
+          </button>
           <button class="mode-button" type="button" data-mode="review">
+            <span class="mode-icon icon-review" aria-hidden="true"></span>
             <span>苦手復習</span>
             <small>間違えた元素だけ復習</small>
           </button>
           <button class="mode-button" type="button" data-mode="cards">
+            <span class="mode-icon icon-cards" aria-hidden="true"></span>
             <span>暗記カード</span>
             <small>タップで確認して暗記</small>
           </button>
@@ -66,7 +68,16 @@
 
         <div class="top-tools">
           <button class="periodic-link-button" type="button" data-mode="periodic">
+            <span class="tool-icon icon-periodic" aria-hidden="true"></span>
             元素周期表を見る
+          </button>
+          <button class="periodic-link-button settings-link-button" type="button" data-mode="settings">
+            <span class="tool-icon icon-settings" aria-hidden="true"></span>
+            設定 / データ管理
+          </button>
+          <button class="periodic-link-button guide-link-button" type="button" data-mode="guide">
+            <span class="tool-icon icon-guide" aria-hidden="true"></span>
+            使い方ガイド
           </button>
         </div>
 
@@ -82,6 +93,102 @@
         <div class="actions">
           <button id="practiceStartButton" class="main-button start-button" type="button">スタート</button>
           <button id="typeBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="finalSetupScreen" class="setup-screen hidden">
+        <p class="setup-title">小テスト直前モード</p>
+        <div id="finalSetupChoices" class="type-grid"></div>
+        <div class="actions">
+          <button id="finalStartButton" class="main-button start-button" type="button">最終確認スタート</button>
+          <button id="finalSetupBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="examConfirmScreen" class="setup-screen hidden">
+        <p class="setup-title">小テスト本番ミッション確認</p>
+        <div id="examConfirmPanel" class="mission-panel"></div>
+        <div class="actions">
+          <button id="examStartButton" class="main-button start-button" type="button">スタート</button>
+          <button id="examConfirmBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="settingsScreen" class="setup-screen hidden">
+        <p class="setup-title">設定 / データ管理</p>
+        <div class="settings-panel">
+          <section class="settings-card">
+            <h3>苦手リスト</h3>
+            <p>保存されている苦手元素とミス回数を削除します。</p>
+            <button id="settingsResetWeakButton" class="danger-button" type="button">苦手リストをリセット</button>
+          </section>
+          <section class="settings-card">
+            <h3>今日の学習記録</h3>
+            <p>今日の問題数、正解数、プレイ回数をリセットします。</p>
+            <button id="settingsResetDailyButton" class="danger-button" type="button">今日の学習記録をリセット</button>
+          </section>
+          <section class="settings-card danger-settings-card">
+            <h3>全データ</h3>
+            <p>学習データと音声設定をすべて削除します。</p>
+            <button id="settingsResetAllButton" class="danger-button" type="button">全データをリセット</button>
+          </section>
+        </div>
+        <p id="settingsMessage" class="result-message"></p>
+        <div class="actions">
+          <button id="settingsBackButton" class="sub-button" type="button">トップへ戻る</button>
+        </div>
+      </section>
+
+      <section id="guideScreen" class="setup-screen hidden">
+        <p class="setup-title">使い方ガイド</p>
+        <div class="guide-panel">
+          <section class="guide-section">
+            <h3>おすすめの使い方</h3>
+            <ol>
+              <li><strong>まずは練習モード</strong><span>出題タイプ、問題数、出題順、範囲を選んで練習できます。最初は「完全ランダム / 10問 / ランダム / 全範囲」がおすすめです。</span></li>
+              <li><strong>テスト前は小テスト直前モード</strong><span>苦手リストの元素を優先して出題します。短時間の最終確認に使います。</span></li>
+              <li><strong>本番練習は小テスト本番</strong><span>30問ランダムで、本番っぽく実力チェックできます。</span></li>
+              <li><strong>間違えたら苦手復習</strong><span>間違えた元素は自動で苦手リストへ。3回連続正解で苦手卒業です。</span></li>
+              <li><strong>漢字は暗記カードで確認</strong><span>紙に元素名を書いてから答えを見ると効果的です。ランダム順と番号順を選べます。</span></li>
+              <li><strong>元素周期表を見る</strong><span>小テスト範囲を一覧で確認できます。普通の周期表表示にも切り替えられます。</span></li>
+            </ol>
+          </section>
+
+          <section class="guide-section">
+            <h3>このゲームの答え方</h3>
+            <p>問題に出ていない2つを別々に選びます。</p>
+            <div class="guide-example">
+              <strong>問題：H</strong>
+              <span>元素番号 → 1番</span>
+              <span>元素名 → 水素</span>
+            </div>
+            <div class="guide-example">
+              <strong>問題：1番</strong>
+              <span>元素名 → 水素</span>
+              <span>元素記号 → H</span>
+            </div>
+          </section>
+
+          <section class="guide-section">
+            <h3>おすすめ学習ルート</h3>
+            <div class="guide-route-grid">
+              <div>
+                <strong>初めて使うとき</strong>
+                <span>暗記カード → 練習10問 → 苦手復習</span>
+              </div>
+              <div>
+                <strong>テスト前</strong>
+                <span>小テスト直前 → 苦手復習 → 小テスト本番</span>
+              </div>
+              <div>
+                <strong>漢字が不安なとき</strong>
+                <span>暗記カード → 紙に書く → 答えを見る → 苦手リストへ</span>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="actions">
+          <button id="guideBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
       </section>
 
@@ -110,12 +217,17 @@
 
       <section id="periodicScreen" class="setup-screen hidden">
         <p class="setup-title">小テスト範囲の元素周期表</p>
+        <div class="periodic-view-toggle" aria-label="周期表の表示切り替え">
+          <button id="periodicListViewButton" class="type-button selected" type="button">一覧表示</button>
+          <button id="periodicTableViewButton" class="type-button" type="button">周期表表示</button>
+        </div>
         <label class="periodic-search" for="periodicSearch">
           <span>元素を検索</span>
           <input id="periodicSearch" type="search" placeholder="番号・記号・元素名で検索">
         </label>
         <div id="periodicTableArea" class="periodic-table-area"></div>
         <p id="periodicMessage" class="result-message"></p>
+        <div id="periodicActionPanel" class="periodic-action-panel hidden"></div>
         <div class="actions">
           <button id="periodicBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
@@ -126,6 +238,11 @@
       </div>
 
       <section id="quizScreen" class="hidden">
+        <div id="quizMeta" class="quiz-meta hidden">
+          <div id="timerBox" class="timer-box hidden">残り <strong id="timerText">15</strong> 秒</div>
+          <div id="comboBox" class="combo-box">連続正解 <strong id="comboText">0</strong></div>
+        </div>
+
         <div id="questionArea" class="question-area">
           <p id="questionType" class="question-type"></p>
           <h2 id="questionText"></h2>
@@ -153,6 +270,7 @@
 
         <div class="actions">
           <button id="reviewButton" class="review-button hidden" type="button">苦手復習をする</button>
+          <button id="retryMissedButton" class="review-button hidden" type="button">間違えた問題だけもう一度</button>
           <button id="reviewListButton" class="main-button hidden" type="button">苦手リストに戻る</button>
           <button id="resultBackButton" class="sub-button" type="button">トップへ戻る</button>
         </div>
