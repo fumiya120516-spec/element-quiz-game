@@ -1128,6 +1128,9 @@ h1 {
   font-size: 0.74rem;
   font-style: normal;
   font-weight: 800;
+  line-height: 1.2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .periodic-table-cell {
@@ -1946,19 +1949,19 @@ h1 {
 @media (max-width: 760px) {
   body {
     align-items: start;
-    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   }
 
   .game {
-    min-height: calc(100svh - 24px);
+    min-height: calc(100svh - 28px);
     display: grid;
   }
 
   .quiz-panel {
     display: flex;
     flex-direction: column;
-    min-height: calc(100svh - 24px);
-    padding: 16px;
+    min-height: calc(100svh - 28px);
+    padding: 15px;
     border-width: 2px;
     box-shadow: 0 12px 26px rgba(43, 90, 126, 0.16);
   }
@@ -1966,7 +1969,7 @@ h1 {
   .top-row {
     align-items: stretch;
     flex-direction: column;
-    gap: 10px;
+    gap: 9px;
   }
 
   .label,
@@ -1982,20 +1985,6 @@ h1 {
     margin-top: 8px;
     font-size: 0.98rem;
     line-height: 1.45;
-  }
-
-  .title-line {
-    gap: 9px;
-  }
-
-  .title-area {
-    padding: 13px 13px 15px;
-  }
-
-  .title-area::after {
-    right: 10px;
-    bottom: 7px;
-    font-size: 0.68rem;
   }
 
   .score-box {
@@ -2016,20 +2005,20 @@ h1 {
     flex-direction: column;
     justify-content: center;
     flex: 1;
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   .mode-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 11px;
   }
 
   .type-grid {
-    gap: 14px;
+    gap: 13px;
   }
 
   .type-section {
-    padding: 13px;
+    padding: 12px;
     box-shadow: 0 5px 0 #c5e8f0, 0 10px 14px rgba(43, 90, 126, 0.08);
   }
 
@@ -2038,7 +2027,7 @@ h1 {
   }
 
   .featured-mode {
-    min-height: 98px;
+    min-height: 92px;
   }
 
   .type-option-grid,
@@ -2072,8 +2061,8 @@ h1 {
   }
 
   .mode-button {
-    min-height: 86px;
-    padding: 42px 16px 15px;
+    min-height: 84px;
+    padding: 40px 16px 14px;
   }
 
   .mode-icon {
@@ -2093,31 +2082,70 @@ h1 {
   }
 
   .top-tools {
-    margin-top: 12px;
+    gap: 9px;
+    margin-top: 13px;
   }
 
   .today-stats {
     width: 100%;
     max-width: none;
-    padding: 13px;
-    font-size: 0.86rem;
+    gap: 8px;
+    padding: 10px 11px;
+    font-size: 0.82rem;
+    box-shadow: 0 4px 0 #c5e8f0, 0 8px 14px rgba(43, 90, 126, 0.08);
+  }
+
+  .today-stats::after {
+    width: 68px;
+    height: 32px;
+    right: 10px;
+    top: 8px;
+    opacity: 0.16;
+    background-size: 13px 11px;
   }
 
   .today-stats-heading span {
-    font-size: 1.08rem;
+    font-size: 1rem;
+  }
+
+  .today-rate-display {
+    gap: 1px;
+  }
+
+  .today-rate-display small {
+    font-size: 0.68rem;
+  }
+
+  .today-rate-display strong {
+    font-size: 1.38rem;
+  }
+
+  .today-stats-meter {
+    height: 8px;
   }
 
   .today-stats-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .today-stats-grid span {
-    padding: 8px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 7px 8px;
+    text-align: left;
   }
 
   .today-stats-grid b {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
+    order: 2;
+  }
+
+  .today-stats-grid small {
+    font-size: 0.7rem;
+    line-height: 1.2;
   }
 
   .periodic-link-button {
@@ -2129,7 +2157,7 @@ h1 {
   .sound-panel {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   .toggle-button,
@@ -2207,11 +2235,12 @@ h1 {
   }
 
   .setup-screen {
-    margin-top: 18px;
+    margin-top: 16px;
   }
 
   .type-button {
     min-height: 58px;
+    padding: 10px;
     font-size: 1rem;
   }
 
@@ -2249,6 +2278,11 @@ h1 {
     font-size: 1.34rem;
   }
 
+  .periodic-cell em {
+    font-size: 0.7rem;
+    line-height: 1.18;
+  }
+
   .periodic-action-buttons {
     grid-template-columns: 1fr;
   }
@@ -2263,7 +2297,7 @@ h1 {
   }
 
   .guide-section {
-    padding: 15px;
+    padding: 14px;
   }
 
   .guide-section h3 {
@@ -2278,7 +2312,7 @@ h1 {
   .quiz-meta {
     flex-direction: column;
     gap: 8px;
-    margin: 14px 0 12px;
+    margin: 13px 0 12px;
     padding: 8px;
   }
 
@@ -2322,7 +2356,7 @@ h1 {
   }
 
   .flash-card {
-    min-height: 280px;
+    min-height: 260px;
     margin: 16px 0;
     padding: 20px;
   }
@@ -2346,7 +2380,7 @@ h1 {
   }
 
   .quiz-panel {
-    padding: 13px;
+    padding: 12px;
   }
 
   h1 {
@@ -2359,7 +2393,7 @@ h1 {
 
   .mode-button {
     min-height: 78px;
-    padding: 13px 14px;
+    padding: 38px 13px 12px;
   }
 
   .mode-button span {
@@ -2368,6 +2402,18 @@ h1 {
 
   .mode-button small {
     font-size: 0.86rem;
+  }
+
+  .today-stats {
+    padding: 9px;
+  }
+
+  .today-stats-grid {
+    gap: 5px;
+  }
+
+  .today-stats-grid span {
+    padding: 6px 7px;
   }
 
   .periodic-table-area {
@@ -2464,18 +2510,65 @@ h1 {
   .mode-button,
   .featured-mode {
     min-height: 74px;
-    padding: 10px;
+    padding: 10px 8px;
+  }
+
+  .mode-icon {
+    display: none;
   }
 
   .mode-button span,
   .featured-mode span {
     font-size: clamp(0.98rem, 2.4vw, 1.18rem);
+    position: relative;
+    z-index: 1;
   }
 
   .mode-button small {
     margin-top: 3px;
     font-size: 0.74rem;
     line-height: 1.25;
+    position: relative;
+    z-index: 1;
+  }
+
+  .today-stats {
+    max-width: 430px;
+    padding: 9px 10px;
+    gap: 7px;
+  }
+
+  .today-stats-heading span {
+    font-size: 0.94rem;
+  }
+
+  .today-rate-display strong {
+    font-size: 1.2rem;
+  }
+
+  .today-stats-meter {
+    height: 7px;
+  }
+
+  .today-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .today-stats-grid span {
+    display: grid;
+    gap: 1px;
+    padding: 5px 6px;
+    text-align: center;
+  }
+
+  .today-stats-grid b {
+    font-size: 0.92rem;
+    order: 0;
+  }
+
+  .today-stats-grid small {
+    font-size: 0.58rem;
   }
 
   .top-tools {
@@ -2640,27 +2733,45 @@ h1 {
   }
 
   .periodic-grid {
-    grid-template-columns: repeat(18, 56px);
-    grid-template-rows: 18px repeat(6, 64px);
-    min-width: 1144px;
-    gap: 7px;
+    grid-template-columns: repeat(18, 58px);
+    grid-template-rows: 18px repeat(6, 70px);
+    min-width: 1162px;
+    gap: 6px;
   }
 
   .periodic-cell {
-    padding: 6px;
+    padding: 5px;
+    overflow: hidden;
   }
 
   .periodic-cell span {
-    font-size: 0.68rem;
+    font-size: 0.58rem;
+    line-height: 1;
   }
 
   .periodic-cell strong {
-    font-size: 1.1rem;
+    font-size: 0.98rem;
+    line-height: 1.05;
   }
 
   .periodic-cell em {
-    margin-top: 4px;
-    font-size: 0.68rem;
+    display: -webkit-box;
+    margin-top: 3px;
+    max-height: 2.2em;
+    font-size: 0.52rem;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .periodic-table-cell strong {
+    font-size: 0.98rem;
+  }
+
+  .periodic-table-cell em {
+    font-size: 0.5rem;
   }
 
   .weak-list-area,
@@ -2753,6 +2864,12 @@ h1 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .mode-button,
+  .featured-mode {
+    min-height: 62px;
+    padding: 8px;
+  }
+
   .answer-groups {
     gap: 8px;
   }
@@ -2764,5 +2881,20 @@ h1 {
 
   .flash-card {
     min-height: 132px;
+  }
+
+  .periodic-grid {
+    grid-template-columns: repeat(18, 52px);
+    grid-template-rows: 16px repeat(6, 62px);
+    min-width: 1038px;
+    gap: 5px;
+  }
+
+  .periodic-cell strong {
+    font-size: 0.88rem;
+  }
+
+  .periodic-cell em {
+    font-size: 0.47rem;
   }
 }
