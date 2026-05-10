@@ -615,11 +615,11 @@ h1 {
   grid-column: 1 / -1;
   min-height: 170px;
   background:
-    radial-gradient(circle at 90% 18%, rgba(32, 180, 134, 0.24), transparent 8rem),
-    radial-gradient(circle at 8% 82%, rgba(69, 174, 227, 0.22), transparent 7rem),
-    linear-gradient(135deg, #e9fff9, #ffffff 52%, #effaff);
-  border-color: #20b486;
-  box-shadow: 0 10px 0 #9ed6cf, 0 18px 28px rgba(32, 180, 134, 0.16), inset 0 0 0 1px #ffffff;
+    radial-gradient(circle at 92% 18%, rgba(32, 180, 134, 0.14), transparent 5rem),
+    linear-gradient(135deg, rgba(69, 174, 227, 0.12), transparent 42%),
+    linear-gradient(#ffffff, #eefbff);
+  border-color: #9eddec;
+  box-shadow: 0 8px 0 #b7e1ec, 0 16px 24px rgba(43, 90, 126, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.86);
 }
 
 .top-tools {
@@ -662,7 +662,7 @@ h1 {
 }
 
 .featured-mode span {
-  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
 }
 
 .sound-panel {
@@ -2247,6 +2247,7 @@ h1 {
     flex-direction: column;
     gap: 6px;
   }
+
   .choice-group-title strong {
     text-align: left;
     font-size: 1rem;
