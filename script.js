@@ -304,6 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let periodicReturnTarget = "top";
   let periodicSelectedElement = null;
   let periodicViewMode = "list";
+  let userHasInteracted = false;
 
   function createAudio(src, volume, loop = false) {
     const audio = new Audio(src);
@@ -349,6 +350,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!userHasInteracted) {
+      return;
+    }
+
+    if (!sounds.bgm.paused) {
+      return;
+    }
+
     try {
       applyBgmVolume();
       sounds.bgm.play().catch((error) => {
@@ -361,6 +370,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function stopBgm() {
     sounds.bgm.pause();
+  }
+
+  function handleFirstUserInteraction() {
+    userHasInteracted = true;
+    removeBgmUnlockListeners();
+    if (bgmOn) {
+      startBgm();
+    }
+  }
+
+  function removeBgmUnlockListeners() {
+    document.removeEventListener("pointerdown", handleFirstUserInteraction, true);
+    document.removeEventListener("touchstart", handleFirstUserInteraction, true);
+    document.removeEventListener("click", handleFirstUserInteraction, true);
+    document.removeEventListener("keydown", handleFirstUserInteraction, true);
+  }
+
+  function setupBgmUnlockListeners() {
+    document.addEventListener("pointerdown", handleFirstUserInteraction, { capture: true, passive: true });
+    document.addEventListener("touchstart", handleFirstUserInteraction, { capture: true, passive: true });
+    document.addEventListener("click", handleFirstUserInteraction, true);
+    document.addEventListener("keydown", handleFirstUserInteraction, true);
   }
 
   function updateSoundControls() {
@@ -2078,6 +2109,8 @@ document.addEventListener("DOMContentLoaded", () => {
   cardFrontSelect.addEventListener("change", showCard);
 
   bgmToggle.addEventListener("click", () => {
+    userHasInteracted = true;
+    removeBgmUnlockListeners();
     bgmOn = !bgmOn;
     localStorage.setItem(storageKeys.bgm, String(bgmOn));
     updateSoundControls();
@@ -2089,6 +2122,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   sfxToggle.addEventListener("click", () => {
+    userHasInteracted = true;
+    removeBgmUnlockListeners();
     sfxOn = !sfxOn;
     localStorage.setItem(storageKeys.sfx, String(sfxOn));
     updateSoundControls();
@@ -2097,5 +2132,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyFixedVolumes();
   updateSoundControls();
+  setupBgmUnlockListeners();
   showTopScreen();
 });
