@@ -695,6 +695,34 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPeriodicTable(elements);
   }
 
+  function showPeriodicElementFromResult(elementNumber) {
+    const targetElement = getElementByNumber(elementNumber);
+    showOnly("periodic");
+    screenLead.textContent = "間違えた元素を普通の周期表表示で確認しています。";
+    periodicSearch.value = "";
+    periodicActionPanel.classList.add("hidden");
+    periodicActionPanel.innerHTML = "";
+    periodicViewMode = "table";
+    updatePeriodicViewButtons();
+    renderPeriodicTable(fullPeriodicElements);
+    periodicMessage.textContent = targetElement
+      ? `${targetElement.number}番 ${targetElement.name}（${targetElement.symbol}）を周期表で確認中です。`
+      : "周期表で元素を確認中です。";
+    periodicMessage.className = "result-message good";
+
+    window.setTimeout(() => {
+      const targetCell = periodicTableArea.querySelector(`.periodic-cell[data-number="${elementNumber}"]`);
+      if (!targetCell) {
+        return;
+      }
+      targetCell.classList.add("periodic-focus-target");
+      targetCell.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      window.setTimeout(() => {
+        targetCell.classList.remove("periodic-focus-target");
+      }, 3200);
+    }, 80);
+  }
+
   function renderPeriodicTable(sourceElements) {
     if (periodicViewMode === "table") {
       renderFullPeriodicTable(sourceElements);
@@ -1173,6 +1201,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <b>あなたの答え</b>
             ${userRows}
           </div>
+          <button class="periodic-jump-button" type="button" data-periodic-number="${question.element.number}">周期表で見る</button>
         </li>
       `;
     }).join("");
@@ -1187,6 +1216,13 @@ document.addEventListener("DOMContentLoaded", () => {
         <ul>${items}</ul>
       </div>
     `;
+
+    missedListArea.querySelectorAll(".periodic-jump-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        playSound("click");
+        showPeriodicElementFromResult(Number(button.dataset.periodicNumber));
+      });
+    });
   }
 
   function renderScoreSummary(total, percent, analysis) {
