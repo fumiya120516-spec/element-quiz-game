@@ -301,6 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedWeakNumbers = [];
   let weakSortMode = "number";
   let cardReturnTarget = "top";
+  let periodicReturnTarget = "top";
   let periodicSelectedElement = null;
   let periodicViewMode = "list";
 
@@ -683,8 +684,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showPeriodicScreen() {
+    periodicReturnTarget = "top";
     showOnly("periodic");
     screenLead.textContent = "小テスト範囲の30元素を、周期表風の研究データカードで確認できます。";
+    periodicBackButton.textContent = "トップへ戻る";
     periodicSearch.value = "";
     periodicMessage.textContent = "";
     periodicMessage.className = "result-message";
@@ -697,8 +700,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showPeriodicElementFromResult(elementNumber) {
     const targetElement = getElementByNumber(elementNumber);
+    periodicReturnTarget = "result";
     showOnly("periodic");
     screenLead.textContent = "間違えた元素を普通の周期表表示で確認しています。";
+    periodicBackButton.textContent = "結果画面に戻る";
     periodicSearch.value = "";
     periodicActionPanel.classList.add("hidden");
     periodicActionPanel.innerHTML = "";
@@ -2061,6 +2066,13 @@ document.addEventListener("DOMContentLoaded", () => {
   periodicSearch.addEventListener("input", filterPeriodicTable);
   periodicBackButton.addEventListener("click", () => {
     playSound("click");
+    if (periodicReturnTarget === "result") {
+      periodicReturnTarget = "top";
+      periodicBackButton.textContent = "トップへ戻る";
+      showOnly("result");
+      screenLead.textContent = "直前の結果画面に戻りました。";
+      return;
+    }
     showTopScreen();
   });
   cardFrontSelect.addEventListener("change", showCard);
